@@ -1,0 +1,207 @@
+{% extends  'base_admin.html' %}
+{% load static %}
+{% block submenu-superior %}
+    <h1 class="h3 mb-0 text-gray-800">Categorías de Productos</h1>
+    <ol class="breadcrumb">
+        {% if request.user.is_administrador or request.user.is_superuser %}
+            <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
+        {% endif %}
+        <li class="breadcrumb-item active" aria-current="page">Categorías de Productos</li>
+    </ol>
+{% endblock %}
+{% block content %}
+
+    <!-- DataTable with Hover -->
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
+                <a href="#add-category" data-toggle="modal"
+                   class="btn btn-primary mb-1"
+                   title="Agregar categoría de producto"
+                   type="button"
+                   style="background-color: #ff5700;"
+                   data-target="#add-category">
+                    <i class="fas fa-plus"></i>
+                    Agregar
+                </a>
+{#                <a href="{% url 'insertar_categoria_producto' %}" type="button" class="btn btn-primary mb-1"> <i#}
+{#                        class="fas fa-plus"></i> Agregar</a>#}
+            </div>
+            <div class="table-responsive p-3">
+                <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                    <thead class="thead-light">
+                    <tr>
+                        <th>Nro</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th>Nro</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </tfoot>
+                    <tbody>
+                    {% for cp in categories_products %}
+                        <tr>
+                            <td>{{ cp.id }}</td>
+                            <td>{{ cp.nombre_categoria }}</td>
+                            <td>{{ cp.descripcion }}</td>
+                            <td>
+                                <a href="#" type="button" data-toggle="modal"
+                                   class="btn btn-primary btn-sm waves-black"
+                                   data-id="{{ cp.id }}" data-name_category="{{ cp.nombre_categoria }}"
+                                   data-description_category="{{ cp.descripcion }}"
+                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700);"
+                                   data-form="{% url 'editar_categoria' cp.id %}"
+                                   title="Editar categoría" data-target="#edit-category">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" data-href="{% url 'eliminar_categoria' cp.id %}"
+                                   data-toggle="modal"
+                                   class="btn btn-primary btn-sm" data-id="{{ cp.id }}"
+                                   title="Eliminar categoria de producto"
+                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700);"
+                                   data-target="#confirm-delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="add-category" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form method="POST" id="contact-form" enctype="multipart/form-data" action="{% url  'agregar_categoria' %}">{% csrf_token %}
+                    <div class="modal-header">
+                        <h4 class="modal-title">Agregar categoría</h4>
+                        <button type="button" class="close " data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <label for="exampleFormControlInput1" class="col-sm-3 col-form-label">Nombre</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="exampleFormControlInput1" required
+                                       placeholder="Escriba el nombre de la categoría" name="nombre_categoria">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="exampleFormControlTextarea1" class="col-sm-3 col-form-label">Descripción</label>
+                            <div class="col-sm-9">
+                                <textarea class="form-control" name="descripcion_categoria" placeholder="Escriba la descripción" id="exampleFormControlTextarea1"
+                                          rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="contactSubmit" class="btn btn-primary"
+                                style="background: linear-gradient(to bottom right, #fc4212, #ff5700); ">Agregar</button>
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="edit-category" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modifique la cantidad del producto</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <h6 id="modal_body"></h6>
+                    <form id="edit_category_form" action="" method="post">{% csrf_token %}
+                        <div class="form-group row">
+                            <label for="name_category" class="col-sm-3 col-form-label">Nombre</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="name_category" required
+                                       placeholder="Escriba el nombre de la categoría" name="nombre_categoria">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="description_category" class="col-sm-3 col-form-label">Descripción</label>
+                            <div class="col-sm-9">
+                                <textarea class="form-control" name="descripcion_categoria"
+                                          placeholder="Escriba la descripción" id="description_category"
+                                          rows="3"></textarea>
+                            </div>
+                        </div>
+
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                        <button id="saveModalButton" class="btn btn-secondary btn-ok"
+                                style="background: linear-gradient(to bottom right, #fc4212, #ff5700);" >Modificar</button>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Desea eliminar esta categoría de producto?</h5>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                    <a class="btn btn-primary btn-ok" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); ">Eliminar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block js %}
+    <!-- Page level plugins -->
+    <script src="{% static 'control_panel/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'control_panel/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable(); // ID From dataTable
+            $('#dataTableHover').DataTable(); // ID From dataTable with Hover
+        });
+    </script>
+    <script>
+        $('#confirm-delete').on('show.bs.modal', function (e) {
+            $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+        });
+    </script>
+
+    <script>
+        $(document).on('click','.waves-black',function(){
+            document.forms["edit_category_form"]['name_category'].value = $(this).data('name_category');
+            document.forms["edit_category_form"]['description_category'].value = $(this).data('description_category');
+        });
+    </script>
+    <script>
+        $(document).on('click','.waves-black',function(){
+            const id = $(this).data('id');
+            $("#edit_category_form").attr("action", "categoria/editar_categoria/" + id);
+        });
+    </script>
+{% endblock %}
