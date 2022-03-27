@@ -1,9 +1,17 @@
 import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from datetime import date
 
 # Create your models here.
+
+TIPO_PAGO = (
+    ('En Efectivo', 'En_Efectivo'),
+    ('Transferencia', 'Transferencia'),
+    ('Por encargo', 'Por_Encargo'),
+    ('Cuenta Casa', 'Cuenta_Casa')
+)
+
 
 class User(AbstractUser):
     sexo = models.BooleanField(default=False)
@@ -19,17 +27,22 @@ class Categoria_Producto(models.Model):
         return self.nombre_categoria
 
 
+class Establecimiento(models.Model):
+    nombre_establecimiento = models.CharField(max_length=50)
+    descripcion_categoria = models.TextField(max_length=50, name='descripcion')
+
+    def __str__(self):
+        return self.nombre_establecimiento
+
+
 class Producto(models.Model):
     imagen = models.ImageField(upload_to='producto/', null=True, blank=True)
     nombre_producto = models.CharField(max_length=100, name='nombre_producto')
     cantidad_existente = models.IntegerField()
     costo = models.FloatField(max_length=100, name='costo')
     precio_venta = models.FloatField(max_length=100, name='precio_venta')
-    inversion = models.FloatField(max_length=100, name='inversion')
-    cantidad_vendida = models.IntegerField()
-    ganancia = models.FloatField(max_length=100, name='ganancia')
-    cantidad_a_vender = models.IntegerField()
     categoria_producto = models.ForeignKey(Categoria_Producto, on_delete=models.CASCADE)
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
     fecha = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
     def __str__(self):
@@ -45,32 +58,79 @@ class Gastos(models.Model):
     def str(self):
         return str(self.concepto)
 
+    @classmethod
+    def get_total_gasto(cls):
+        return sum([gasto.monto_gasto for gasto in cls.objects.filter(fecha_gasto__day=date.today().day,
+                                                                      fecha_gasto__month=date.today().month,
+                                                                      fecha_gasto__year=date.today().year)])
 
-class Reporte_Ampliado(models.Model):
-    nombre = models.CharField(max_length=200)
-    cantidad_existente = models.IntegerField()
-    costo_produccion = models.FloatField(max_length=100)
-    precio_venta = models.FloatField(max_length=100)
-    inversion = models.FloatField(max_length=100)
-    cantidad_vendido = models.FloatField(max_length=100)
-    ganancia = models.FloatField(max_length=100)
+
+class Venta(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, name='usuario')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, name='producto')
+    cantidad = models.IntegerField()
+    tipo_pago = models.CharField(max_length=50, choices=TIPO_PAGO, name='tipo_pago')
+    venta_total = models.FloatField(max_length=100)
+    costo = models.FloatField(max_length=100, null=True, blank=True)
+    deudor = models.CharField(max_length=50, name='deudor', null=True, blank=True)
+    fecha_venta = models.DateTimeField(datetime.datetime.now())
 
     def str(self):
-        return str(self.nombre)
+        return str(self.producto)
+
+    @classmethod
+    def get_total_count(cls):
+        return sum([sale.cantidad for sale in cls.objects.filter(fecha_venta__day=date.today().day,
+                                                                 fecha_venta__month=date.today().month,
+                                                                 fecha_venta__year=date.today().year)])
+
+    @classmethod
+    def get_total_sales(cls):
+        return sum([
+            sale.cantidad * sale.producto.precio_venta for sale in
+            cls.objects.filter(fecha_venta__day=date.today().day,
+                               fecha_venta__month=date.today().month,
+                               fecha_venta__year=date.today().year).exclude(tipo_pago='home_account')
+        ])
+
+    @classmethod
+    def get_total_sales_costo(cls):
+        return sum([
+            sale.cantidad * sale.producto.costo for sale in cls.objects.filter(fecha_venta__day=date.today().day,
+                                                                               fecha_venta__month=date.today().month,
+                                                                               fecha_venta__year=date.today().year)
+        ])
+
+    @classmethod
+    def get_total_sales_home(cls):
+        return sum([
+            sale.cantidad * sale.producto.precio_venta for sale in cls.objects.filter(tipo_pago="home_account",
+                                                                                      fecha_venta__day=date.today().day,
+                                                                                      fecha_venta__month=date.today().month,
+                                                                                      fecha_venta__year=date.today().year)
+        ])
 
 
 class Venta_Diaria(models.Model):
-    fecha_venta = models.DateTimeField(datetime.datetime.now())
+    fecha_venta = models.DateField(auto_now_add=True)
     cantidad = models.IntegerField()
     venta_total = models.IntegerField()
-    a_cobrar = models.IntegerField()
-    inversion = models.FloatField(max_length=100)
-    ganancia = models.FloatField(max_length=100)
+    costo = models.FloatField(max_length=100)
+    ganancia_bruta = models.FloatField(max_length=100)
     gasto = models.FloatField(max_length=100)
-    ganancia_real = models.FloatField(max_length=100)
+    ganancia_neta = models.FloatField(max_length=100)
 
     def str(self):
         return str(self.fecha_venta)
+
+
+class Entrada(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, name='producto')
+    cantidad_producto_entrada = models.IntegerField()
+    fecha = models.DateTimeField(datetime.datetime.now())
+
+    def str(self):
+        return str(self.producto.nombre_producto)
 
 
 class Merma(models.Model):
@@ -80,3 +140,13 @@ class Merma(models.Model):
 
     def str(self):
         return str(self.producto.nombre_producto)
+
+    @classmethod
+    def get_total_merma(cls):
+        return sum([merma.cantidad_producto_merma * merma.producto.precio_venta
+                    for merma in cls.objects.filter(fecha__day=date.today().day,
+                                                    fecha__month=date.today().month,
+                                                    fecha__year=date.today().year)])
+
+
+

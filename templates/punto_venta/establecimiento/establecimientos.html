@@ -1,12 +1,12 @@
 {% extends  'base_admin.html' %}
 {% load static %}
 {% block submenu-superior %}
-    <h1 class="h3 mb-0 text-gray-800">Categorías de Productos</h1>
+    <h1 class="h3 mb-0 text-gray-800">Establecimientos</h1>
     <ol class="breadcrumb">
         {% if request.user.is_administrador or request.user.is_superuser %}
             <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
         {% endif %}
-        <li class="breadcrumb-item active" aria-current="page">Categorías de Productos</li>
+        <li class="breadcrumb-item active" aria-current="page">Establecimientos</li>
     </ol>
 {% endblock %}
 {% block content %}
@@ -16,12 +16,12 @@
         <div class="card mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
-                <a href="#add-category" data-toggle="modal"
+                <a href="#add-establecimiento" data-toggle="modal"
                    class="btn btn-primary mb-1"
                    title="Agregar categoría de producto"
                    type="button"
                    style="background-color: #ff5700;"
-                   data-target="#add-category">
+                   data-target="#add-establecimiento">
                     <i class="fas fa-plus"></i>
                     Agregar
                 </a>
@@ -47,25 +47,25 @@
                     </tr>
                     </tfoot>
                     <tbody>
-                    {% for cp in categories_products %}
+                    {% for es in establecimientos %}
                         <tr>
-                            <td>{{ cp.id }}</td>
-                            <td>{{ cp.nombre_categoria }}</td>
-                            <td>{{ cp.descripcion }}</td>
+                            <td>{{ es.id }}</td>
+                            <td>{{ es.nombre_establecimiento }}</td>
+                            <td>{{ es.descripcion }}</td>
                             <td>
                                 <a href="#" type="button" data-toggle="modal"
                                    class="btn btn-primary btn-sm waves-black"
-                                   data-id="{{ cp.id }}" data-name_category="{{ cp.nombre_categoria }}"
-                                   data-description_category="{{ cp.descripcion }}"
+                                   data-id="{{ es.id }}" data-nombre_establecimiento="{{ es.nombre_establecimiento }}"
+                                   data-descripcion_establecimiento="{{ es.descripcion }}"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700);"
-                                   data-form="{% url 'editar_categoria' cp.id %}"
-                                   title="Editar categoría" data-target="#edit-category">
+                                   data-form="{% url 'editar_establecimiento' es.id %}"
+                                   title="Editar establecimiento" data-target="#edit-establecimiento">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="#" data-href="{% url 'eliminar_categoria' cp.id %}"
+                                <a href="#" data-href="{% url 'eliminar_establecimiento' es.id %}"
                                    data-toggle="modal"
                                    class="btn btn-primary btn-sm" data-id="{{ cp.id }}"
-                                   title="Eliminar categoria de producto"
+                                   title="Eliminar establecimiento"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700);"
                                    data-target="#confirm-delete">
                                     <i class="fas fa-trash"></i>
@@ -81,13 +81,13 @@
         </div>
     </div>
 
-    <div class="modal fade" id="add-category" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <div class="modal fade" id="add-establecimiento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form method="POST" id="contact-form" enctype="multipart/form-data" action="{% url  'agregar_categoria' %}">{% csrf_token %}
+                <form method="POST" id="contact-form" enctype="multipart/form-data" action="{% url  'agregar_establecimiento' %}">{% csrf_token %}
                     <div class="modal-header">
-                        <h4 class="modal-title">Agregar categoría</h4>
+                        <h4 class="modal-title">Agregar establecimiento</h4>
                         <button type="button" class="close " data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
@@ -95,13 +95,13 @@
                             <label for="exampleFormControlInput1" class="col-sm-3 col-form-label">Nombre</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="exampleFormControlInput1" required
-                                       placeholder="Escriba el nombre de la categoría" name="nombre_categoria">
+                                       placeholder="Escriba el nombre del establecimiento" name="nombre_establecimiento">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="exampleFormControlTextarea1" class="col-sm-3 col-form-label">Descripción</label>
                             <div class="col-sm-9">
-                                <textarea class="form-control" name="descripcion_categoria" placeholder="Escriba la descripción" id="exampleFormControlTextarea1"
+                                <textarea class="form-control" name="descripcion_establecimiento" placeholder="Escriba la descripción" id="exampleFormControlTextarea1"
                                           rows="3"></textarea>
                             </div>
                         </div>
@@ -116,12 +116,12 @@
         </div>
     </div>
 
-    <div class="modal fade" id="edit-category" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <div class="modal fade" id="edit-establecimiento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modifique el nombre de la categoría</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Modifique el establecimiento</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
@@ -129,20 +129,21 @@
 
                 <div class="modal-body">
                     <h6 id="modal_body"></h6>
-                    <form id="edit_category_form" action="" method="post">{% csrf_token %}
+                    <form id="edit_establecimiento_form" action="" method="post">{% csrf_token %}
                         <div class="form-group row">
-                            <label for="name_category" class="col-sm-3 col-form-label">Nombre</label>
+                            <label for="nombre_establecimiento" class="col-sm-3 col-form-label">Nombre</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="name_category" required
-                                       placeholder="Escriba el nombre de la categoría" name="nombre_categoria">
+                                <input type="text" class="form-control" id="nombre_establecimiento" required
+                                       placeholder="Escriba el nombre del establecimiento" name="nombre_establecimiento">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="description_category" class="col-sm-3 col-form-label">Descripción</label>
+                            <label for="descripcion_establecimiento" class="col-sm-3 col-form-label">Descripción</label>
                             <div class="col-sm-9">
-                                <textarea class="form-control" name="descripcion_categoria"
-                                          placeholder="Escriba la descripción" id="description_category"
-                                          rows="3"></textarea>
+                                <label for="descripcion_establecimiento"></label>
+                                <textarea class="form-control" name="descripcion_establecimiento"
+                                                                                           placeholder="Escriba la descripción" id="descripcion_establecimiento"
+                                                                                           rows="3"></textarea>
                             </div>
                         </div>
 
@@ -162,7 +163,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Desea eliminar esta categoría de producto?</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Desea eliminar el establecimiento?</h5>
                 </div>
 
                 <div class="modal-footer">
@@ -194,14 +195,14 @@
 
     <script>
         $(document).on('click','.waves-black',function(){
-            document.forms["edit_category_form"]['name_category'].value = $(this).data('name_category');
-            document.forms["edit_category_form"]['description_category'].value = $(this).data('description_category');
+            document.forms["edit_establecimiento_form"]['nombre_establecimiento'].value = $(this).data('nombre_establecimiento');
+            document.forms["edit_establecimiento_form"]['descripcion_establecimiento'].value = $(this).data('descripcion_establecimiento');
         });
     </script>
     <script>
         $(document).on('click','.waves-black',function(){
             const id = $(this).data('id');
-            $("#edit_category_form").attr("action", "categoria/editar_categoria/" + id);
+            $("#edit_establecimiento_form").attr("action", "establecimiento/editar_establecimiento/" + id);
         });
     </script>
 {% endblock %}

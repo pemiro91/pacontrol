@@ -60,11 +60,12 @@
                         <div class="bg-white py-2 collapse-inner rounded">
 {#                            <h6 class="collapse-header">Productos</h6>#}
                             <a class="collapse-item" href="{% url 'categories_productos' %}">Categorías</a>
+                            <a class="collapse-item" href="{% url 'establecimientos' %}">Establecimientos</a>
                             <a class="collapse-item" href="{% url 'productos' %}">Productos</a>
                             <a class="collapse-item" href="{% url 'mermas' %}">Mermas</a>
-                            <a class="collapse-item" href="">Entradas</a>
-                            <a class="collapse-item" href="">Resumen ventas</a>
-                            <a class="collapse-item" href="">Gastos</a>
+                            <a class="collapse-item" href="{% url 'entradas' %}">Entradas</a>
+                            <a class="collapse-item" href="{% url 'ventas_diaria' %}">Resumen ventas</a>
+                            <a class="collapse-item" href="{% url 'expenses' %}">Gastos</a>
                             <a class="collapse-item" href="">Traslado</a>
                         </div>
                     </div>
@@ -250,6 +251,7 @@
 <script src="{% static 'control_panel/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'control_panel/vendor/jquery-easing/jquery.easing.min.js' %}"></script>
 <script src="{% static 'control_panel/js/ruang-admin.min.js' %}"></script>
+<script src="{% static 'control_panel/dataspicker/js/gijgo.min.js' %}"></script>
 <script>
     const message_ele = document.getElementById("message_container");
     const message_ele2 = document.getElementById("message_container2");

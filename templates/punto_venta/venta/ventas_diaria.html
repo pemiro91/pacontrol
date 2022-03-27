@@ -1,0 +1,175 @@
+{% extends  'base_admin.html' %}
+{% load static %}
+{% block submenu-superior %}
+    <h1 class="h3 mb-0 text-gray-800">Resumen ventas diaria</h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Resumen ventas</li>
+    </ol>
+{% endblock %}
+{% block content %}
+
+    <!-- DataTable with Hover -->
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
+                <div class="col-md-5 float-right">
+                    <form method="post" >{% csrf_token %}
+                        <div class="form-group row">
+                            <div class="col-sm-4">
+                                <label for="datepicker"></label>
+                                <input id="datepicker" class="form-control" name="fecha_init" placeholder="Fecha inicio"/>
+                            </div>
+                            <div class="col-sm-4">
+                                <label for="datepicker2"></label>
+                                <input id="datepicker2" class="form-control" name="fecha_finish" placeholder="Fecha final"/>
+                            </div>
+                            <div class="col-sm-4">
+                                <button type="submit" class=" btn btn-primary" title="Filtrar">
+                                     <i class="fas fa-filter"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if sales_filter %}
+                <div class="table-responsive p-3">
+                    <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                            <th>Venta Total</th>
+                            <th>Costo</th>
+                            <th>Ganancia</th>
+                            <th>Gastos</th>
+                            <th>Gan. Real</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                            <th>Venta Total</th>
+                            <th>Costo</th>
+                            <th>Ganancia</th>
+                            <th>Gastos</th>
+                            <th>Gan. Real</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        {% for sale in sales_filter %}
+                            <tr>
+                                <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
+                                <td>{{ sale.cantidad }}</td>
+                                <td>{{ sale.venta_total }}</td>
+                                <td>{{ sale.costo }}</td>
+                                <td>{{ sale.ganancia }}</td>
+                                <td>{{ sale.gasto }}</td>
+                                <td>{{ sale.ganancia_real }}</td>
+                                {% if sale.cantidad != 0 %}
+                                    <td>
+                                        <a href="{% url 'ventas' sale.id %}" title="Detalles de la venta"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+            </div>
+            {% else %}
+                <div class="table-responsive p-3">
+                    <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                            <th>Venta Total</th>
+                            <th>Costo</th>
+                            <th>Ganancia Bruta</th>
+                            <th>Gastos</th>
+                            <th>Ganancia Neta</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                            <th>Venta Total</th>
+                            <th>Costo</th>
+                            <th>Ganancia Bruta</th>
+                            <th>Gastos</th>
+                            <th>Ganancia Neta</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        {% for sale in sales %}
+                            <tr>
+                                <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
+                                <td>{{ sale.cantidad }}</td>
+                                <td>{{ sale.venta_total }}</td>
+                                <td>{{ sale.costo }}</td>
+                                <td>{{ sale.ganancia_bruta }}</td>
+                                <td>{{ sale.gasto }}</td>
+                                <td>{{ sale.ganancia_neta }}</td>
+                                {% if sale.cantidad != 0 %}
+                                     <td>
+                                        <a href="{% url 'ventas' sale.id %}" title="Detalles de la venta"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+{% block js %}
+    <!-- Page level plugins -->
+    <script src="{% static 'control_panel/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'control_panel/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable(); // ID From dataTable
+            $('#dataTableHover').DataTable(); // ID From dataTable with Hover
+        });
+    </script>
+    <script>
+        $('#datepicker').datepicker({
+            uiLibrary: 'bootstrap4',
+            startView: 2,
+            todayBtn: "linked",
+            language: "es",
+            format: "dd/mm/yyyy",
+        });
+
+        $('#datepicker2').datepicker({
+            uiLibrary: 'bootstrap4',
+            startView: 2,
+            todayBtn: "linked",
+            language: "es",
+            format: "dd/mm/yyyy",
+        });
+    </script>
+{% endblock %}

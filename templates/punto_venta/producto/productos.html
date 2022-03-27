@@ -13,6 +13,11 @@
     <div class="col-lg-12">
         <div class="card mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <div>
+                    <a href="#" data-toggle="modal" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " class="btn btn-primary btn-sm" title="Gastos"
+                       data-target="#confirm-gasto"> <i class="fas fa-sort-amount-down"></i> Gasto
+                    </a>
+                </div>
                 <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
                 <a href="{% url 'insertar_producto' %}" type="button" class="btn btn-primary mb-1" style="background-color: #ff5700;"><i
                         class="fas fa-plus"></i> Agregar</a>
@@ -26,9 +31,7 @@
                         <th>Cantidad existente</th>
                         <th>Costo</th>
                         <th>Precio venta</th>
-                        <th>Cantidad vendida</th>
-                        <th>Ganancia</th>
-                        <th>Cantidad a vender</th>
+                        <th>Establecimiento</th>
                         <th>Operaciones</th>
                     </tr>
                     </thead>
@@ -38,9 +41,7 @@
                         <th>Cantidad existente</th>
                         <th>Costo</th>
                         <th>Precio venta</th>
-                        <th>Cantidad vendida</th>
-                        <th>Ganancia</th>
-                        <th>Cantidad a vender</th>
+                        <th>Establecimiento</th>
                         <th>Operaciones</th>
                     </tr>
                     </tfoot>
@@ -51,21 +52,28 @@
                             <td>{{ producto.cantidad_existente }}</td>
                             <td>{{ producto.costo }}</td>
                             <td>{{ producto.precio_venta }}</td>
-                            <td>{{ producto.cantidad_vendida }}</td>
-                            <td>{{ producto.ganancia }}</td>
-                            <td>{{ producto.cantidad_a_vender }}</td>
+                            <td>{{ producto.establecimiento }}</td>
                             <td width="20%">
                                 <a href="{% url 'editar_producto' producto.id %}" title="Modificar Producto"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
                                    class="btn btn-primary btn-sm">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="#" data-href="{% url 'eliminar_producto' producto.id %}" data-toggle="modal"
-                                   class="btn btn-primary btn-sm" data-id="{{ producto.id }}"
+                                {% if producto.cantidad_existente == 0 %}
+                                    <a href="#" data-href="{% url 'eliminar_producto' producto.id %}" data-toggle="modal"
+                                       class="btn btn-primary btn-sm" data-id="{{ producto.id }}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Eliminar producto"
+                                       data-target="#confirm-delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                {% endif %}
+                                <a href="#" data-url="{% url 'add_incrementar' producto.id %}" data-toggle="modal"
+                                   class="btn btn-primary btn-sm waves-black" data-id="{{ producto.id }}"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Eliminar producto"
-                                   data-target="#confirm-delete">
-                                    <i class="fas fa-trash"></i>
+                                   title="Incrementar producto"
+                                   data-target="#confirm-incrementar">
+                                    <i class="fas fa-hand-point-up"></i>
                                 </a>
                                 <a href="#" data-url="{% url 'add_merma' producto.id %}" data-toggle="modal"
                                    class="btn btn-primary btn-sm waves-black" data-id="{{ producto.id }}"
@@ -74,19 +82,20 @@
                                    data-target="#confirm-merma">
                                     <i class="fas fa-hand-point-down"></i>
                                 </a>
-                                <a href="#" data-href="{% url 'eliminar_producto' producto.id %}" data-toggle="modal"
-                                   class="btn btn-primary btn-sm" data-id="{{ producto.id }}"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Incrementar producto"
-                                   data-target="#confirm-delete">
-                                    <i class="fas fa-hand-point-up"></i>
-                                </a>
-                                <a href="#" data-href="{% url 'eliminar_producto' producto.id %}" data-toggle="modal"
-                                   class="btn btn-primary btn-sm" data-id="{{ producto.id }}"
+                                <a href="#" data-toggle="modal"
+                                   class="btn btn-primary btn-sm waves-pay" data-id="{{ producto.id }}"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700);"
                                    title="Vender producto"
-                                   data-target="#confirm-delete">
+                                   data-target="#confirm-buy">
                                     <i class="fas fa-money-bill"></i>
+                                </a>
+{#                                <a href="{% url 'traslado' producto.id %}" title="Modificar Producto"#}
+{#                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "#}
+{#                                   class="btn btn-primary btn-sm">#}
+{#                                    <i class="fas fa-edit"></i>#}
+{#                                </a>#}
+                                <a href="#" data-toggle="modal" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " class="btn btn-primary btn-sm waves-black-home"  title="Traslado"
+                                   data-target="#confirm-traslado" data-id="{{ producto.id }}"><i class="fas fa-truck"></i>
                                 </a>
                             </td>
                         </tr>
@@ -94,6 +103,33 @@
 
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Incrementar -->
+    <div class="modal fade" id="confirm-incrementar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Agregue la cantidad de producto a incrementar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add_incrementar_form" action="" method="post">{% csrf_token %}
+                      <div class="form-group">
+                        <label for="count-incrementar" class="col-form-label">Cantidad:</label>
+                        <input type="number" name="count_incrementar" class="form-control" id="count-incrementar">
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-secondary btn-ok" style="background-color: #ff5700;">Incrementar</button>
+                      </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -123,7 +159,47 @@
             </div>
         </div>
     </div>
-    <!-- Modal -->
+    <!-- Modal Gasto -->
+    <div class="modal fade" id="confirm-gasto" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Gasto</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+{#                        <h4 class="font-weight-bold text-primary text-center">CUP</h4>#}
+                        <form id="data_gastos_form" method="post" action="" class="needs-validation" novalidate>{% csrf_token %}
+
+                          <div id="monto_client" class="form-group has-error">
+                            <label for="concepto" class="col-form-label">Nombre:</label>
+                            <input type="text" name="concepto"
+                                   class="form-control required" id="concepto"  >
+                            <div id="shieldRequired" class="invalid-feedback">El campo no debe estar vacio.</div>
+                          </div>
+                          <div id="monto_client" class="form-group has-error">
+                            <label for="gasto_amount" class="col-form-label">Monto del gasto:</label>
+                            <input type="number" name="gasto_amount"
+                                   class="form-control required" id="gasto_amount"  >
+                            <div id="shieldRequired2" class="invalid-feedback">El campo no debe estar vacio.</div>
+                            <div id="shieldAmount" class="invalid-feedback">El monto del gasto no debe ser 0.</div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                            <input type="button"  class="btn btn-primary btn-ok" style="background-color: #ff5700;" id="pagar3" name="pagar3"
+                                   value="Guardar" onclick="submitFunction(0)"/>
+                          </div>
+                        </form>
+                    </div>
+                </div>
+
+        </div>
+    </div>
+    <!-- Modal Eliminar-->
     <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -138,6 +214,103 @@
                     <a class="btn btn-primary btn-ok" style="background-color: #ff5700;">Eliminar</a>
                 </div>
             </div>
+        </div>
+    </div>
+    <!-- Modal Vender-->
+    <div class="modal fade" id="confirm-buy" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Vender</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+{#                        <h4 class="font-weight-bold text-primary text-center">Total: {{ total_pagar }} CUP</h4>#}
+                        <form id="data_buy_form" method="post" action="" class="needs-validation" novalidate>{% csrf_token %}
+                          <div class="form-group">
+                            <label for="super_count" class="col-form-label">Forma de pago:</label>
+                            <select class="form-control" id="typePaysSelector" name="payment_type" aria-label="Default select example" required>
+                              <option selected disabled="disabled">Seleccione una forma de pago</option>
+                              <option value="cash">Efectivo</option>
+                              <option value="transfer">Transferencia</option>
+                              <option value="credit">Crédito</option>
+                              <option value="home_account">Cuenta casa</option>
+                            </select>
+                          </div>
+
+                          <div id="count_product" class="form-group has-error">
+                            <label for="count_product_var" class="col-form-label">Cantidad de producto:</label>
+                            <input type="number" name="count_product_var"
+                                   class="form-control required" id="count_product_var"  >
+                            <div id="shieldRequired" class="invalid-feedback">El campo no debe estar vacio.</div>
+                            <div id="shieldCountProduct" class="invalid-feedback">El cantidad solicitada es mayor que la cantidad existente.</div>
+                          </div>
+                            <div id="deudor_id" style="display:none" class="form-group has-error">
+                              <label for="deudor_name" class="col-form-label">Deudor:</label>
+                              <input type="text" name="deudor_name" class="form-control" id="deudor_name" >
+                              <div id="shieldTransRequired" class="invalid-feedback">El campo no debe estar vacio.</div>
+                            </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-secondary btn-ok" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " >Vender</button>
+                          </div>
+                        </form>
+                    </div>
+                </div>
+
+        </div>
+    </div>
+    <!-- Modal Traslado -->
+    <div class="modal fade" id="confirm-traslado" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Traslado</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+{#                        <h4 class="font-weight-bold text-primary text-center">CUP</h4>#}
+                        <form enctype="multipart/form-data" action="" method="post">{% csrf_token %}
+                            {{ trasladoForm }}
+                            <div class="form-group row">
+                                <div class="col-sm-10">
+                                    <button type="submit" class="btn btn-primary" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); ">Trasladar</button>
+                                </div>
+                            </div>
+                        </form>
+{#                        <form id="data_gastos_form" method="post" action="" class="needs-validation" novalidate>{% csrf_token %}#}
+{##}
+{#                          <div id="monto_client" class="form-group has-error">#}
+{#                            <label for="concepto" class="col-form-label">Nombre:</label>#}
+{#                            <input type="text" name="concepto"#}
+{#                                   class="form-control required" id="concepto"  >#}
+{#                            <div id="shieldRequired" class="invalid-feedback">El campo no debe estar vacio.</div>#}
+{#                          </div>#}
+{#                          <div id="monto_client" class="form-group has-error">#}
+{#                            <label for="gasto_amount" class="col-form-label">Monto del gasto:</label>#}
+{#                            <input type="number" name="gasto_amount"#}
+{#                                   class="form-control required" id="gasto_amount"  >#}
+{#                            <div id="shieldRequired2" class="invalid-feedback">El campo no debe estar vacio.</div>#}
+{#                            <div id="shieldAmount" class="invalid-feedback">El monto del gasto no debe ser 0.</div>#}
+{#                          </div>#}
+{#                          <div class="modal-footer">#}
+{#                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>#}
+{#                            <input type="button"  class="btn btn-primary btn-ok" style="background-color: #ff5700;" id="pagar3" name="pagar3"#}
+{#                                   value="Guardar" onclick="submitFunction(0)"/>#}
+{#                          </div>#}
+{#                        </form>#}
+                    </div>
+                </div>
+
         </div>
     </div>
 
@@ -163,8 +336,72 @@
         $(document).on('click','.waves-black',function(){
             var id = $(this).data('id');
             console.log(id)
+            $("#add_incrementar_form").attr("action", "productos/add_incrementar/" + id);
+        });
+    </script>
+    <script>
+        $(document).on('click','.waves-black',function(){
+            var id = $(this).data('id');
+            console.log(id)
             $("#add_merma_form").attr("action", "productos/add_merma/" + id);
         });
     </script>
+    <script>
+        $(document).on('click','.waves-black-home',function(){
+            var id = $(this).data('id');
+            console.log(id)
+            $("#add_home_form").attr("action", "productos/add_home/" + id);
+        });
+    </script>
+     <script>
+        $(document).ready(function(){
+            $('#typePaysSelector').on('change', function() {
+              if ( this.value === 'credit'){
+                $("#count_product").show();
+                $("#deudor_id").show();
+              }
+              else {
+                $("#count_product").show();
+                $("#deudor_id").hide();
+              }
+            });
+        });
+    </script>
+
+    <script>
+        function submitFunction(i) {
+            const conceptoVar = $('#concepto');
+            const gastoAmount = $('#gasto_amount');
+            if (!conceptoVar.val()){
+               $("#shieldRequired").show();
+               i.preventDefault();
+            }else if (!gastoAmount.val()){
+               $("#shieldRequired2").show();
+               i.preventDefault();
+            }
+            else{
+               $("#shieldRequired").hide();
+               $("#shieldRequired2").hide();
+               if (gastoAmount.val() === 0){
+                   $("#shieldAmount").show();
+                   i.preventDefault();
+               }else {
+                   $("#data_gastos_form").attr("action", "productos/add_spending");
+               }
+            }
+            document.forms["data_gastos_form"].submit()
+        }
+    </script>
+    <script type="text/javascript">
+        $(document).on('click','.waves-pay',function(){
+            const element = document.getElementsByName("count_product_var");
+            const id = $(this).data('id');
+            console.log(id)
+            console.log(element)
+            $("#data_buy_form").attr("action", "productos/buy/" + id);
+        });
+    </script>
+
+
 
 {% endblock %}

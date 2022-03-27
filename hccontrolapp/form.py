@@ -2,15 +2,15 @@ import datetime
 
 from django import forms
 
-from hccontrolapp.models import Producto
+from hccontrolapp.models import Producto, Establecimiento
 
 
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = (
-            'imagen', 'nombre_producto', 'cantidad_existente', 'costo', 'precio_venta', 'inversion', 'cantidad_vendida',
-            'ganancia', 'cantidad_a_vender', 'categoria_producto', 'fecha')
+            'imagen', 'nombre_producto', 'cantidad_existente', 'costo', 'precio_venta', 'categoria_producto',
+            'establecimiento', 'fecha')
 
         exclude = ['fecha']
 
@@ -20,11 +20,8 @@ class ProductoForm(forms.ModelForm):
             "cantidad_existente": "Cantidad Existente",
             "costo": "Costo",
             "precio_venta": "Precio venta",
-            "inversion": "Inversión",
-            "cantidad_vendida": "Cantidad vendida",
-            "ganancia": "Ganancia",
-            "cantidad_a_vender": "Cantidad a vender",
             "categoria_producto": "Categoría de producto",
+            "establecimiento": "Establecimiento",
         }
 
         widgets = {
@@ -43,23 +40,21 @@ class ProductoForm(forms.ModelForm):
             'precio_venta': forms.TextInput(
                 attrs={'class': 'form-control text', 'placeholder': 'Escriba el precio de la venta', 'required': True}),
 
-            'inversion': forms.TextInput(
-                attrs={'class': 'form-control text', 'placeholder': 'Escriba la inversión', 'required': True}),
-
-            'cantidad_vendida': forms.TextInput(
-                attrs={'class': 'form-control text', 'placeholder': 'Cantidad vendida', 'required': True}),
-
-            'ganancia': forms.TextInput(
-                attrs={'class': 'form-control text', 'placeholder': 'Ganancia', 'required': True}),
-
-            'cantidad_a_vender': forms.TextInput(
-                attrs={'class': 'form-control text', 'placeholder': 'Cantidad a vender', 'required': True}),
-
             'categoria_producto': forms.Select(attrs={'class': 'select form-control', 'label': 'Seleccione '
                                                                                                'la '
                                                                                                'categoría',
                                                       'required': True}),
+
+            'establecimiento': forms.Select(attrs={'class': 'select form-control', 'label': 'Seleccione '
+                                                                                            'el '
+                                                                                            'establecimiento',
+                                                   'required': True}),
             # 'precio': forms.NumberInput(
             #     attrs={'class': 'form-control ', 'placeholder': 'Escriba el precio de la pieza', })
 
         }
+
+
+class TrasladoForm(forms.Form):
+    establecimiento = forms.ModelChoiceField(queryset=Establecimiento.objects.all())
+    cantidad = forms.CharField(widget=forms.NumberInput())

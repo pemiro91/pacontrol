@@ -1,0 +1,84 @@
+{% extends  'base_admin.html' %}
+{% load static %}
+{% block submenu-superior %}
+    <h1 class="h3 mb-0 text-gray-800">Resumen ventas</h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'ventas_diaria' %}">Ventas diarias</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Resumen ventas</li>
+    </ol>
+{% endblock %}
+{% block content %}
+
+    <!-- DataTable with Hover -->
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
+            </div>
+            <div class="table-responsive p-3">
+                <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                    <thead class="thead-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Tipo de pago</th>
+                        <th>Venta</th>
+                        <th>Costo</th>
+                        <th>Deudor</th>
+                        <th>Fecha</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Tipo de pago</th>
+                        <th>Venta</th>
+                        <th>Costo</th>
+                        <th>Deudor</th>
+                        <th>Fecha</th>
+                    </tr>
+                    </tfoot>
+                    <tbody>
+                    {% for sale in sales %}
+                        <tr>
+                            <td>{{ sale.producto.nombre_producto }}</td>
+                            <td>{{ sale.cantidad }}</td>
+                            {% if sale.tipo_pago == 'cash' %}
+                                <td>Efectivo</td>
+                            {% elif sale.tipo_pago == 'transfer' %}
+                                <td>Transferencia</td>
+                            {% elif sale.tipo_pago == 'credit' %}
+                                <td>Crédito</td>
+                            {% elif sale.tipo_pago == 'home_account' %}
+                                <td>Cuenta casa</td>
+                            {% endif %}
+                            <td>{{ sale.venta_total }}</td>
+                            <td>{{ sale.costo }}</td>
+                            {% if sale.deudor %}
+                                <td>{{ sale.deudor }}</td>
+                            {% endif %}
+                            <td>{{ sale.fecha_venta|date:'d/m/y' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block js %}
+    <!-- Page level plugins -->
+    <script src="{% static 'control_panel/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'control_panel/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable(); // ID From dataTable
+            $('#dataTableHover').DataTable(); // ID From dataTable with Hover
+        });
+    </script>
+{% endblock %}

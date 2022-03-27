@@ -4,7 +4,7 @@
     <h1 class="h3 mb-0 text-gray-800">Productos</h1>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Mermas</li>
+        <li class="breadcrumb-item active" aria-current="page">Entradas</li>
     </ol>
 {% endblock %}
 {% block content %}
@@ -21,7 +21,7 @@
                     <thead class="thead-light">
                     <tr>
                         <th>Nombre producto</th>
-                        <th>Cantidad mermada</th>
+                        <th>Cantidad incrementada</th>
                         <th>Costo</th>
                         <th>Monto total</th>
                         <th>Operaciones</th>
@@ -30,32 +30,32 @@
                     <tfoot>
                     <tr>
                         <th>Nombre producto</th>
-                        <th>Cantidad mermada</th>
+                        <th>Cantidad incrementada</th>
                         <th>Costo</th>
                         <th>Monto total</th>
                         <th>Operaciones</th>
                     </tr>
                     </tfoot>
                     <tbody>
-                    {% for merma in mermas %}
+                    {% for entrada in increases %}
                         <tr>
-                            <td>{{ merma.producto.nombre_producto }}</td>
-                            <td>{{ merma.cantidad_producto_merma }}</td>
-                            <td>{{ merma.producto.costo }}</td>
-                            <td>{% widthratio merma.producto.costo 1 merma.cantidad_producto_merma %}</td>
+                            <td>{{ entrada.producto.nombre_producto }}</td>
+                            <td>{{ entrada.cantidad_producto_entrada }}</td>
+                            <td>{{ entrada.producto.costo }}</td>
+                            <td>{% widthratio entrada.producto.costo 1 entrada.cantidad_producto_entrada %}</td>
                             <td>
                                 <a href="#" type="button" data-toggle="modal"
                                    class="btn btn-primary btn-sm waves-black"
-                                   data-id="{{ merma.id }}" data-count="{{ merma.cantidad_producto_merma }}"
-                                   data-form="{% url 'edit_merma' merma.id %}"
+                                   data-id="{{ entrada.id }}" data-count="{{ entrada.cantidad_producto_entrada }}"
+                                   data-form="{% url 'edit_entrada' entrada.id %}"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Editar cantidad" data-target="#confirm-merma">
+                                   title="Editar cantidad" data-target="#confirm-entrada">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="#" data-href="{% url 'delete_merma' merma.id %}" data-toggle="modal"
-                                   class="btn btn-primary btn-sm" data-id="{{ merma.id }}"
+                                <a href="#" data-href="{% url 'delete_entrada' entrada.id %}" data-toggle="modal"
+                                   class="btn btn-primary btn-sm" data-id="{{ entrada.id }}"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Eliminar merma"
+                                   title="Eliminar entrada"
                                    data-target="#confirm-delete">
                                     <i class="fas fa-trash"></i>
                                 </a>
@@ -69,12 +69,12 @@
         </div>
     </div>
 
-    <div class="modal fade" id="confirm-merma" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <div class="modal fade" id="confirm-entrada" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modifique la cantidad a mermar</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Modifique la cantidad a incrementar</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
@@ -82,10 +82,10 @@
 
                 <div class="modal-body">
                     <h6 id="modal_body"></h6>
-                    <form id="edit_merma_form" action="" method="post">{% csrf_token %}
+                    <form id="edit_entrada_form" action="" method="post">{% csrf_token %}
                       <div class="form-group">
-                        <label for="super_merma" class="col-form-label">Cantidad:</label>
-                        <input type="number" name="count_merma" class="form-control" id="super_merma" required>
+                        <label for="super_entrada" class="col-form-label">Cantidad:</label>
+                        <input type="number" name="count_entrada" class="form-control" id="super_entrada" required>
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
@@ -102,7 +102,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Desea eliminar la merma?</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Desea eliminar la entrada?</h5>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
@@ -132,13 +132,13 @@
     </script>
     <script>
         $(document).on('click','.waves-black',function(){
-            document.forms["edit_merma_form"]['super_merma'].value = $(this).data('count');
+            document.forms["edit_entrada_form"]['super_entrada'].value = $(this).data('count');
         });
     </script>
     <script>
         $(document).on('click','.waves-black',function(){
             const id = $(this).data('id');
-            $("#edit_merma_form").attr("action", "mermas/edit_merma/" + id);
+            $("#edit_entrada_form").attr("action", "entradas/edit_entrada/" + id);
         });
     </script>
 
