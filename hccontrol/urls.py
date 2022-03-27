@@ -63,4 +63,6 @@ urlpatterns = [
 
 
     path('productos/traslado/<int:id_p>', views.traslado, name="traslado"),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
