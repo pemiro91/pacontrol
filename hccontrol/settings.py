@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'hccontrol.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': env('POSTGRESQL_NAME'),
         'USER': env('POSTGRESQL_USER'),
         'PASSWORD': env('POSTGRESQL_PASS'),
