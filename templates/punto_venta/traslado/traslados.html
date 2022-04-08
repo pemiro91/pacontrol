@@ -1,10 +1,10 @@
 {% extends  'base_admin.html' %}
 {% load static %}
 {% block submenu-superior %}
-    <h1 class="h3 mb-0 text-gray-800">Entradas</h1>
+    <h1 class="h3 mb-0 text-gray-800">Traslados</h1>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Entradas</li>
+        <li class="breadcrumb-item active" aria-current="page">Traslados</li>
     </ol>
 {% endblock %}
 {% block content %}
@@ -20,61 +20,63 @@
                 <table class="table align-items-center table-flush table-hover" id="dataTableHover">
                     <thead class="thead-light">
                     <tr>
-                        <th>Nombre producto</th>
-                        <th>Cantidad incrementada</th>
-                        <th>Costo</th>
-                        <th>Monto total</th>
+                        <th>Establecimiento</th>
+                        <th>Establecimiento Origen</th>
+                        <th>Cantidad trasladada</th>
+                        <th>Usuario</th>
+                        <th>Fecha traslado</th>
                         <th>Operaciones</th>
                     </tr>
                     </thead>
                     <tfoot>
                     <tr>
-                        <th>Nombre producto</th>
-                        <th>Cantidad incrementada</th>
-                        <th>Costo</th>
-                        <th>Monto total</th>
+                        <th>Establecimiento</th>
+                        <th>Establecimiento Origen</th>
+                        <th>Cantidad trasladada</th>
+                        <th>Usuario</th>
+                        <th>Fecha traslado</th>
                         <th>Operaciones</th>
                     </tr>
                     </tfoot>
                     <tbody>
-                    {% for entrada in increases %}
+                    {% for traslado in traslados %}
                         <tr>
-                            <td>{{ entrada.producto.nombre_producto }}</td>
-                            <td>{{ entrada.cantidad_producto_entrada }}</td>
-                            <td>{{ entrada.producto.costo }}</td>
-                            <td>{% widthratio entrada.producto.costo 1 entrada.cantidad_producto_entrada %}</td>
+                            <td>{{ traslado.establecimiento.nombre_establecimiento }}</td>
+                            <td>{{ traslado.establecimiento_padre.nombre_establecimiento }}</td>
+                            <td>{{ traslado.cantidad_trasladar }}</td>
+                            <td>{{ traslado.user.username }}</td>
+                            <td>{{ traslado.fecha }}</td>
                             <td>
-                                <a href="#" type="button" data-toggle="modal"
-                                   class="btn btn-primary btn-sm waves-black"
-                                   data-id="{{ entrada.id }}" data-count="{{ entrada.cantidad_producto_entrada }}"
-                                   data-form="{% url 'edit_entrada' entrada.id %}"
+{#                                <a href="#" type="button" data-toggle="modal"#}
+{#                                   class="btn btn-primary btn-sm waves-black"#}
+{#                                   data-id="{{ traslado.id }}" data-count="{{ traslado.cantidad_trasladar }}"#}
+{#                                   data-form="{% url 'edit_traslado' traslado.id %}"#}
+{#                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "#}
+{#                                   title="Editar cantidad" data-target="#confirm-traslado">#}
+{#                                    <i class="fas fa-edit"></i>#}
+{#                                </a>#}
+                                <a href="#" data-href="{% url 'delete_traslado' traslado.id %}" data-toggle="modal"
+                                   class="btn btn-primary btn-sm" data-id="{{ traslado.id }}"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Editar cantidad" data-target="#confirm-entrada">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" data-href="{% url 'delete_entrada' entrada.id %}" data-toggle="modal"
-                                   class="btn btn-primary btn-sm" data-id="{{ entrada.id }}"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Eliminar entrada"
+                                   title="Eliminar traslado"
                                    data-target="#confirm-delete">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </td>
                         </tr>
                     {% endfor %}
-
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="confirm-entrada" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <div class="modal fade" id="confirm-traslado" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modifique la cantidad a incrementar</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Modifique la cantidad a trasladar</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
@@ -82,10 +84,10 @@
 
                 <div class="modal-body">
                     <h6 id="modal_body"></h6>
-                    <form id="edit_entrada_form" action="" method="post">{% csrf_token %}
+                    <form id="edit_traslado_form" action="" method="post">{% csrf_token %}
                       <div class="form-group">
-                        <label for="super_entrada" class="col-form-label">Cantidad:</label>
-                        <input type="number" name="count_entrada" class="form-control" id="super_entrada" required>
+                        <label for="super_traslado" class="col-form-label">Cantidad:</label>
+                        <input type="number" name="count_traslado" class="form-control" id="super_traslado" required>
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
@@ -102,7 +104,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Desea eliminar la entrada?</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Desea eliminar el traslado?</h5>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
@@ -132,13 +134,13 @@
     </script>
     <script>
         $(document).on('click','.waves-black',function(){
-            document.forms["edit_entrada_form"]['super_entrada'].value = $(this).data('count');
+            document.forms["edit_traslado_form"]['super_traslado'].value = $(this).data('count');
         });
     </script>
     <script>
         $(document).on('click','.waves-black',function(){
             const id = $(this).data('id');
-            $("#edit_entrada_form").attr("action", "entradas/edit_entrada/" + id);
+            $("#edit_traslado_form").attr("action", "traslados/edit_traslado/" + id);
         });
     </script>
 

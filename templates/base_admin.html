@@ -66,7 +66,7 @@
                             <a class="collapse-item" href="{% url 'entradas' %}">Entradas</a>
                             <a class="collapse-item" href="{% url 'ventas_diaria' %}">Resumen ventas</a>
                             <a class="collapse-item" href="{% url 'expenses' %}">Gastos</a>
-                            <a class="collapse-item" href="">Traslado</a>
+                            <a class="collapse-item" href="{% url 'traslados' %}">Traslados</a>
                         </div>
                     </div>
                 </li>
@@ -76,12 +76,13 @@
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePage"
                    aria-expanded="true"
                    aria-controls="collapsePage">
-                    <i class="fas fa-fw fa-atlas"></i>
+                    <i class="fas fa-fw fa-warehouse"></i>
                     <span>Almancén</span>
                 </a>
                 <div id="collapsePage" class="collapse" aria-labelledby="headingPage" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Operaciones</h6>
+                        <a class="collapse-item" href="{% url 'categories_productos' %}">Materiales</a>
 {#                        <a class="collapse-item" href="{% url 'punto_venta' %}">Punto de ventas</a>#}
 {#                        {% if operaciones_del_dia.count != 0 %}#}
 {#                            <a class="collapse-item" href="{% url 'operaciones' %}">Ventas del día</a>#}

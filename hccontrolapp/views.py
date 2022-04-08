@@ -7,7 +7,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.urls import reverse
 from datetime import datetime
 from hccontrolapp.models import Categoria_Producto, Producto, Merma, Gastos, Venta, Venta_Diaria, Entrada, \
-    Establecimiento
+    Establecimiento, Traslado
 from hccontrolapp.form import ProductoForm, TrasladoForm
 from datetime import date
 
@@ -149,25 +149,115 @@ def eliminar_establecimiento(request, id_e):
 
 
 def traslado(request, id_p):
-    if request.method == 'POST':
-        trasladoForm = TrasladoForm(request.POST or None)
+    product = get_object_or_404(Producto, pk=id_p)
+    if request.method == "POST":
+        trasladoForm = TrasladoForm(request.POST, establecimiento_id=product.establecimiento_id)
         if trasladoForm.is_valid():
-            traslado_form = trasladoForm.save(commit=False)
-            traslado_form.save()
-            messages.success(request, "El traslado se realizó satisfactoriamente!")
-            return redirect("productos")
-        else:
-            print(trasladoForm.errors)
+            establecimiento_id = trasladoForm.cleaned_data['establecimiento'].id
+            count = trasladoForm.cleaned_data['cantidad_trasladar']
+            if int(count) <= product.cantidad_existente:
+                resta_existente = product.cantidad_existente - int(count)
+                Producto.objects.filter(id=id_p).update(cantidad_existente=resta_existente)
+
+                if not Producto.objects.filter(establecimiento_id=establecimiento_id).exists():
+                    newProducto = Producto(imagen=product.imagen,
+                                           nombre_producto=product.nombre_producto,
+                                           cantidad_existente=int(count),
+                                           costo=product.costo,
+                                           precio_venta=product.precio_venta,
+                                           categoria_producto=product.categoria_producto,
+                                           establecimiento_id=establecimiento_id)
+                    newProducto.save()
+
+                    move = Traslado(producto_id=newProducto.id, establecimiento_id=establecimiento_id,
+                                    establecimiento_padre_id=product.establecimiento_id,
+                                    cantidad_trasladar=int(count), user=request.user)
+                    move.save()
+
+                else:
+                    product_traslado = Producto.objects.get(establecimiento_id=establecimiento_id)
+                    agregar_existente = product_traslado.cantidad_existente + int(count)
+
+                    Producto.objects.filter(establecimiento_id=establecimiento_id).update(
+                        cantidad_existente=agregar_existente)
+
+                    move = Traslado(producto_id=id_p, establecimiento_id=establecimiento_id,
+                                    establecimiento_padre_id=product.establecimiento_id,
+                                    cantidad_trasladar=int(count), user=request.user)
+                    move.save()
+
+                messages.success(request, "El traslado se realizó satisfactoriamente!")
+                return redirect("productos")
+            else:
+                messages.error(request, "Cantidad insuficiente para realizar el traslado!")
+                return redirect(reverse('traslado', args=(id_p,)))
     else:
-        trasladoForm = TrasladoForm()
-    return render(request, 'punto_venta/producto/productos.html',
+        trasladoForm = TrasladoForm(request.POST, establecimiento_id=product.establecimiento_id)
+
+    return render(request, 'punto_venta/traslado/insertar_traslado.html',
                   {'trasladoForm': trasladoForm})
+
+
+def traslados(request):
+    transfers = Traslado.objects.all().order_by('id')
+    context = {'traslados': transfers}
+    return render(request, "punto_venta/traslado/traslados.html", context)
+
+
+def edit_traslado(request, id_t=None):
+    if request.user.is_authenticated:
+        move = Traslado.objects.get(id=id_t)
+        if request.method == 'POST':
+            count_traslado = request.POST.get('count_traslado')
+            producto_custom = Producto.objects.get(id=move.producto.id)
+            if int(count_traslado) != 0:
+                rest_traslado = move.cantidad_trasladar - int(count_traslado)
+                cant_existente = producto_custom.cantidad_existente + rest_traslado
+                Traslado.objects.filter(id=id_t).update(cantidad_trasladar=int(count_traslado))
+                Producto.objects.filter(id=move.producto.id).update(cantidad_existente=cant_existente)
+                messages.success(request,
+                                 'La cantidad trasladada de ' + move.producto.nombre_producto + ' fue modificada '
+                                                                                                'satisfactoriamente')
+            else:
+                # messages.error(request, 'La cantidad no puede ser 0, si lo desea elimine el producto')
+                cant_traslado = producto_custom.cantidad_existente + move.cantidad_trasladar
+                Producto.objects.filter(id=move.producto.id).update(cantidad_existente=cant_traslado)
+                move.delete()
+                messages.success(request, 'Traslado eliminado satisfactoriamente')
+
+            return redirect('traslados')
+        context = {'move': move}
+        return render(request, 'punto_venta/traslado/traslados.html', context)
+    return redirect('login_user')
+
+
+def delete_traslado(request, id_t):
+    if request.user.is_authenticated:
+        t = Traslado.objects.get(id=id_t)
+        producto_custom = Producto.objects.get(id=t.producto.id)
+
+        if producto_custom.cantidad_existente == t.cantidad_trasladar:
+            Producto.objects.filter(id=t.producto.id).update(cantidad_existente=0)
+
+            producto_custom2 = Producto.objects.get(establecimiento_id=t.establecimiento_padre.id)
+            cant_traslado = producto_custom2.cantidad_existente + t.cantidad_trasladar
+            Producto.objects.filter(establecimiento_id=t.establecimiento_padre.id).update(
+                cantidad_existente=cant_traslado)
+
+        else:
+            producto_custom2 = Producto.objects.get(id=t.producto.id)
+            cant_traslado = producto_custom2.cantidad_existente + t.cantidad_trasladar
+            Producto.objects.filter(id=t.producto.id).update(cantidad_existente=cant_traslado)
+        t.delete()
+        messages.success(request, 'Traslado eliminado satisfactoriamente')
+        return redirect('traslados')
+    return redirect('login_user')
 
 
 #############Productos##############
 
 def productos(request):
-    products = Producto.objects.all()
+    products = Producto.objects.all().order_by('id')
     context = {'productos': products}
     return render(request, "punto_venta/producto/productos.html", context)
 

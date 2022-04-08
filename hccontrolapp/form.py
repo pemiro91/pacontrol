@@ -2,7 +2,7 @@ import datetime
 
 from django import forms
 
-from hccontrolapp.models import Producto, Establecimiento
+from hccontrolapp.models import Producto, Establecimiento, Traslado
 
 
 class ProductoForm(forms.ModelForm):
@@ -56,5 +56,24 @@ class ProductoForm(forms.ModelForm):
 
 
 class TrasladoForm(forms.Form):
-    establecimiento = forms.ModelChoiceField(queryset=Establecimiento.objects.all())
-    cantidad = forms.CharField(widget=forms.NumberInput())
+
+    def __init__(self, *args, **kwargs):
+        establecimiento_id = kwargs.pop("establecimiento_id")
+        super(TrasladoForm, self).__init__(*args, **kwargs)
+        print(establecimiento_id)
+        self.fields['establecimiento'] = forms.ModelChoiceField(
+            widget=forms.Select(attrs={'class': 'select form-control',
+                                       'label': 'Seleccione el establecimiento',
+                                       'required': True}),
+            queryset=Establecimiento.objects.exclude(pk=establecimiento_id))
+
+    class Meta:
+        model = Traslado
+        fields = ('producto', 'establecimiento', 'cantidad_trasladar', 'user', 'fecha')
+
+        exclude = ['fecha', 'producto', 'user']
+
+    cantidad_trasladar = forms.CharField(widget=forms.NumberInput(attrs={'class': 'form-control text',
+                                                                         'placeholder': 'Escriba la cantidad a '
+                                                                                        'trasladar',
+                                                                         'required': True}))

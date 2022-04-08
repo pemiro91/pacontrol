@@ -49,6 +49,19 @@ class Producto(models.Model):
         return self.nombre_producto
 
 
+class Traslado(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE, related_name='establecimiento')
+    establecimiento_padre = models.ForeignKey(Establecimiento,
+                                              on_delete=models.CASCADE, related_name='establecimiento_padre')
+    cantidad_trasladar = models.IntegerField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+
+    def __str__(self):
+        return self.establecimiento.nombre_establecimiento
+
+
 class Gastos(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, name='usuario')
     concepto = models.CharField(max_length=200)
@@ -147,6 +160,3 @@ class Merma(models.Model):
                     for merma in cls.objects.filter(fecha__day=date.today().day,
                                                     fecha__month=date.today().month,
                                                     fecha__year=date.today().year)])
-
-
-
