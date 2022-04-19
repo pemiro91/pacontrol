@@ -58,8 +58,10 @@
                             <td>{{ sale.costo }}</td>
                             {% if sale.deudor %}
                                 <td>{{ sale.deudor }}</td>
+                            {% else %}
+                                <td>-</td>
                             {% endif %}
-                            <td>{{ sale.fecha_venta|date:'d/m/y' }}</td>
+                            <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

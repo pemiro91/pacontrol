@@ -20,25 +20,30 @@
                 <table class="table align-items-center table-flush table-hover" id="dataTableHover">
                     <thead class="thead-light">
                     <tr>
+                        <th>Fecha</th>
                         <th>Nombre producto</th>
                         <th>Cantidad mermada</th>
                         <th>Costo</th>
                         <th>Monto total</th>
                         <th>Operaciones</th>
+
                     </tr>
                     </thead>
                     <tfoot>
                     <tr>
+                        <th>Fecha</th>
                         <th>Nombre producto</th>
                         <th>Cantidad mermada</th>
                         <th>Costo</th>
                         <th>Monto total</th>
                         <th>Operaciones</th>
+
                     </tr>
                     </tfoot>
                     <tbody>
                     {% for merma in mermas %}
                         <tr>
+                            <td>{{ merma.fecha|date:'d-m-Y' }}</td>
                             <td>{{ merma.producto.nombre_producto }}</td>
                             <td>{{ merma.cantidad_producto_merma }}</td>
                             <td>{{ merma.producto.costo }}</td>

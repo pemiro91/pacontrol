@@ -7,9 +7,11 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.urls import reverse
 from datetime import datetime
 from hccontrolapp.models import Categoria_Producto, Producto, Merma, Gastos, Venta, Venta_Diaria, Entrada, \
-    Establecimiento, Traslado
+    Establecimiento, Traslado, User, Material
 from hccontrolapp.form import ProductoForm, TrasladoForm
 from datetime import date
+from django.db import transaction
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
@@ -30,21 +32,103 @@ def login_user(request):
             return redirect('login_user')
     else:
         form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
+    return render(
+        request,
+        'login.html',
+        {'form': form}
+    )
 
 
+@login_required
 def logout(request):
     do_logout(request)
     return redirect('login_user')
 
 
+@login_required
 def panel_home(request):
     if request.user.is_authenticated:
-        context = {}
-        return render(request, "index.html", context)
+        return render(request, "index.html", {})
     return redirect('login_user')
 
 
+@login_required
+def usuarios(request):
+    users = User.objects.exclude(is_superuser=True)
+    context = {'users': users}
+    return render(request, "usuarios/usuarios.html", context)
+
+
+@login_required
+def insertar_usuario(request):
+    if request.method == 'POST':
+        userForm = UserForm(request.POST or None)
+        if userForm.is_valid():
+            user_form = userForm.save(commit=False)
+            user_form.save()
+            messages.success(request, "El usuario se agregó satisfactoriamente!")
+            return redirect("usuarios")
+        else:
+            print(userForm.errors)
+    else:
+        userForm = UserForm()
+    return render(request, 'usuarios/insertar_usuarios.html',
+                  {'userForm': userForm})
+
+
+@login_required
+def editar_usuario(request, id_user=None):
+    if request.user.is_authenticated:
+        user_custom = User.objects.get(id=id_user)
+        if request.method == 'POST':
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            carnet = request.POST.get('carnet')
+            genero = request.POST.get('sexo')
+            user_name = request.POST.get('user_name')
+            rol_de = request.POST.get('rol_de')
+            password1 = request.POST.get('password1')
+            with transaction.atomic():
+                user_custom.set_password(password1)
+                user_custom.save()
+                if rol_de == 'dependiente':
+                    User.objects.filter(id=id_user).update(
+                        first_name=first_name,
+                        last_name=last_name,
+                        carnet=carnet,
+                        username=user_name,
+                        is_dependiente=True,
+                        is_administrador=False,
+                        sexo=genero
+                    )
+                else:
+                    User.objects.filter(id=id_user).update(
+                        first_name=first_name,
+                        last_name=last_name,
+                        carnet=carnet,
+                        username=user_name,
+                        is_dependiente=False,
+                        is_administrador=True,
+                        sexo=genero
+                    )
+            messages.success(request, 'Datos de usuario actualizado satisfactoriamente')
+            return redirect('usuarios')
+        context = {'user': user_custom}
+        return render(request, 'usuarios/editar_usuarios.html', context)
+    return redirect('login_user')
+
+
+@login_required
+def eliminar_usuario(request, id_user):
+    if request.user.is_authenticated:
+        u = User.objects.get(id=id_user)
+        u.delete()
+        messages.success(request, 'El usuario fue eliminado satisfactoriamente')
+        return redirect('usuarios')
+    return redirect('login_user')
+
+
+@login_required
 def categories_productos(request):
     if request.user.is_authenticated:
         categories_products = Categoria_Producto.objects.all()
@@ -55,6 +139,7 @@ def categories_productos(request):
     return redirect('login_user')
 
 
+@login_required
 def agregar_categoria(request):
     if request.user.is_authenticated:
         if request.method == "POST":
@@ -73,6 +158,7 @@ def agregar_categoria(request):
     return redirect('login_user')
 
 
+@login_required
 def editar_categoria(request, id_o=None):
     if request.user.is_authenticated:
         categoria = Categoria_Producto.objects.get(id=id_o)
@@ -90,31 +176,38 @@ def editar_categoria(request, id_o=None):
     return redirect('login_user')
 
 
+@login_required
 def eliminar_categoria(request, id_cp):
     if request.user.is_authenticated:
         cp = Categoria_Producto.objects.get(id=id_cp)
         cp.delete()
+        messages.success(request, 'La categoría se eliminó satisfactoriamente')
         return redirect('categories_productos')
     return redirect('login_user')
 
 
+@login_required
 def establecimientos(request):
     if request.user.is_authenticated:
         establecimiento = Establecimiento.objects.all()
-        context = {'establecimientos': establecimiento}
+        users = User.objects.all()
+        context = {'establecimientos': establecimiento, 'users': users}
         return render(request, "punto_venta/establecimiento/establecimientos.html", context)
     return redirect('login_user')
 
 
+@login_required
 def agregar_establecimiento(request):
     if request.user.is_authenticated:
         if request.method == "POST":
             nombre_establecimiento = request.POST.get('nombre_establecimiento')
             descripcion_establecimiento = request.POST.get('descripcion_establecimiento')
+            user_responsable = request.POST.get('user_responsable')
 
             e = Establecimiento.objects.create(
                 nombre_establecimiento=nombre_establecimiento,
-                descripcion=descripcion_establecimiento
+                descripcion=descripcion_establecimiento,
+                user_id=int(user_responsable)
             )
             e.save()
             messages.success(request, 'El establecimiento se agregó satisfactoriamente')
@@ -123,6 +216,7 @@ def agregar_establecimiento(request):
     return redirect('login_user')
 
 
+@login_required
 def editar_establecimiento(request, id_e=None):
     if request.user.is_authenticated:
         establecimiento = Establecimiento.objects.get(id=id_e)
@@ -140,16 +234,19 @@ def editar_establecimiento(request, id_e=None):
     return redirect('login_user')
 
 
+@login_required
 def eliminar_establecimiento(request, id_e):
     if request.user.is_authenticated:
         e = Establecimiento.objects.get(id=id_e)
         e.delete()
+        messages.success(request, 'El establecimiento fue eliminado satisfactoriamente')
         return redirect('establecimientos')
     return redirect('login_user')
 
 
-def traslado(request, id_p):
-    product = get_object_or_404(Producto, pk=id_p)
+@login_required
+def traslado(request, product_parameter):
+    product = get_object_or_404(Producto, slug=product_parameter)
     if request.method == "POST":
         trasladoForm = TrasladoForm(request.POST, establecimiento_id=product.establecimiento_id)
         if trasladoForm.is_valid():
@@ -157,16 +254,17 @@ def traslado(request, id_p):
             count = trasladoForm.cleaned_data['cantidad_trasladar']
             if int(count) <= product.cantidad_existente:
                 resta_existente = product.cantidad_existente - int(count)
-                Producto.objects.filter(id=id_p).update(cantidad_existente=resta_existente)
+                Producto.objects.filter(id=product.id).update(cantidad_existente=resta_existente)
 
-                if not Producto.objects.filter(establecimiento_id=establecimiento_id).exists():
+                if not Producto.objects.filter(id=product.id).filter(establecimiento_id=establecimiento_id).exists():
                     newProducto = Producto(imagen=product.imagen,
                                            nombre_producto=product.nombre_producto,
                                            cantidad_existente=int(count),
                                            costo=product.costo,
                                            precio_venta=product.precio_venta,
                                            categoria_producto=product.categoria_producto,
-                                           establecimiento_id=establecimiento_id)
+                                           establecimiento_id=establecimiento_id,
+                                           slug=product.slug)
                     newProducto.save()
 
                     move = Traslado(producto_id=newProducto.id, establecimiento_id=establecimiento_id,
@@ -175,10 +273,11 @@ def traslado(request, id_p):
                     move.save()
 
                 else:
-                    product_traslado = Producto.objects.get(establecimiento_id=establecimiento_id)
-                    agregar_existente = product_traslado.cantidad_existente + int(count)
+                    product_traslado = Producto.objects.filter(id=product.id) \
+                        .filter(establecimiento_id=establecimiento_id)
+                    agregar_existente = product_traslado[0].cantidad_existente + int(count)
 
-                    Producto.objects.filter(establecimiento_id=establecimiento_id).update(
+                    Producto.objects.filter(id=product.id).filter(establecimiento_id=establecimiento_id).update(
                         cantidad_existente=agregar_existente)
 
                     move = Traslado(producto_id=id_p, establecimiento_id=establecimiento_id,
@@ -187,7 +286,7 @@ def traslado(request, id_p):
                     move.save()
 
                 messages.success(request, "El traslado se realizó satisfactoriamente!")
-                return redirect("productos")
+                return redirect(reverse('productos_establecimientos', args=(product.establecimiento.slug,)))
             else:
                 messages.error(request, "Cantidad insuficiente para realizar el traslado!")
                 return redirect(reverse('traslado', args=(id_p,)))
@@ -198,12 +297,14 @@ def traslado(request, id_p):
                   {'trasladoForm': trasladoForm})
 
 
+@login_required
 def traslados(request):
     transfers = Traslado.objects.all().order_by('id')
     context = {'traslados': transfers}
     return render(request, "punto_venta/traslado/traslados.html", context)
 
 
+@login_required
 def edit_traslado(request, id_t=None):
     if request.user.is_authenticated:
         move = Traslado.objects.get(id=id_t)
@@ -231,6 +332,7 @@ def edit_traslado(request, id_t=None):
     return redirect('login_user')
 
 
+@login_required
 def delete_traslado(request, id_t):
     if request.user.is_authenticated:
         t = Traslado.objects.get(id=id_t)
@@ -255,13 +357,21 @@ def delete_traslado(request, id_t):
 
 
 #############Productos##############
+@login_required
+def productos_establecimientos(request, store):
+    products = Producto.objects.filter(establecimiento__slug=store).order_by('id')
+    context = {'productos': products}
+    return render(request, "punto_venta/producto/productos_establecimientos.html", context)
 
+
+@login_required
 def productos(request):
     products = Producto.objects.all().order_by('id')
     context = {'productos': products}
     return render(request, "punto_venta/producto/productos.html", context)
 
 
+@login_required
 def agregar_producto(request):
     if request.method == 'POST':
         productoForm = ProductoForm(request.POST or None, request.FILES or None)
@@ -278,9 +388,10 @@ def agregar_producto(request):
                   {'productoForm': productoForm})
 
 
-def modificar_producto(request, id_p=None):
+@login_required
+def modificar_producto(request, product=None):
     if request.user.is_authenticated:
-        producto_custom = Producto.objects.get(id=id_p)
+        producto_custom = Producto.objects.get(slug=product)
         update_form = ProductoForm(request.POST or None, request.FILES or None, instance=producto_custom)
         if update_form.is_valid():
             edit = update_form.save(commit=False)
@@ -292,6 +403,7 @@ def modificar_producto(request, id_p=None):
     return redirect('login_user')
 
 
+@login_required
 def eliminar_producto(request, id_p):
     if request.user.is_authenticated:
         p = Producto.objects.get(id=id_p)
@@ -304,12 +416,14 @@ def eliminar_producto(request, id_p):
 today = date.today()
 
 
+@login_required
 def entradas(request):
     increases = Entrada.objects.all()
     context = {'increases': increases}
     return render(request, "punto_venta/entrada/entrada.html", context)
 
 
+@login_required
 def add_incrementar(request, id_p):
     if request.user.is_authenticated:
         if request.method == "POST":
@@ -348,12 +462,13 @@ def add_incrementar(request, id_p):
 
             operations_sales(request)
             messages.success(request, 'Producto incrementado satisfactoriamente')
-            return redirect('productos')
+            return redirect(reverse('productos_establecimientos', args=(producto_custom.establecimiento.id,)))
         context = {}
-        return render(request, "punto_venta/producto/productos.html", context)
+        return render(request, "punto_venta/producto/productos_establecimientos.html", context)
     return redirect('login_user')
 
 
+@login_required
 def edit_entrada(request, id_e=None):
     if request.user.is_authenticated:
         entrada = Entrada.objects.get(id=id_e)
@@ -383,6 +498,7 @@ def edit_entrada(request, id_e=None):
     return redirect('login_user')
 
 
+@login_required
 def delete_entrada(request, id_e):
     if request.user.is_authenticated:
         e = Entrada.objects.get(id=id_e)
@@ -395,12 +511,14 @@ def delete_entrada(request, id_e):
     return redirect('login_user')
 
 
+@login_required
 def mermas(request):
     decrease = Merma.objects.all()
     context = {'mermas': decrease}
     return render(request, "punto_venta/merma/merma.html", context)
 
 
+@login_required
 def add_merma(request, id_p):
     if request.user.is_authenticated:
         if request.method == "POST":
@@ -436,12 +554,13 @@ def add_merma(request, id_p):
 
             operations_sales(request)
             messages.success(request, 'Producto mermado satisfactoriamente')
-            return redirect('productos')
+            return redirect(reverse('productos_establecimientos', args=(producto_custom.establecimiento.id,)))
         context = {}
         return render(request, "punto_venta/producto/productos.html", context)
     return redirect('login_user')
 
 
+@login_required
 def edit_merma(request, id_m=None):
     if request.user.is_authenticated:
         merma = Merma.objects.get(id=id_m)
@@ -470,6 +589,7 @@ def edit_merma(request, id_m=None):
     return redirect('login_user')
 
 
+@login_required
 def delete_merma(request, id_m):
     if request.user.is_authenticated:
         m = Merma.objects.get(id=id_m)
@@ -482,6 +602,7 @@ def delete_merma(request, id_m):
     return redirect('login_user')
 
 
+@login_required
 def operations_sales(request):
     gasto_final = Merma.get_total_merma() + Gastos.get_total_gasto() + Venta.get_total_sales_home()
     ganancia_bruta = Venta.get_total_sales() - Venta.get_total_sales_costo()
@@ -505,6 +626,7 @@ def operations_sales(request):
                                     ganancia_bruta=ganancia_bruta, gasto=gasto_final, ganancia_neta=ganancia_neta)
 
 
+@login_required
 def add_spending(request):
     if request.user.is_authenticated:
         if request.method == "POST":
@@ -515,12 +637,13 @@ def add_spending(request):
             operations_sales(request)
 
             messages.success(request, 'Gasto registrado satisfactoriamente')
-            return redirect('productos')
+            return redirect('expenses')
         context = {}
-        return render(request, "punto_venta/producto/productos.html", context)
+        return render(request, "punto_venta/gasto/gastos.html", context)
     return redirect('login_user')
 
 
+@login_required
 def expenses(request):
     if request.user.is_authenticated:
         gastos = Gastos.objects.all()
@@ -529,6 +652,7 @@ def expenses(request):
     return redirect('login_user')
 
 
+@login_required
 def buy(request, id_p):
     if request.user.is_authenticated:
         if request.method == "POST":
@@ -554,13 +678,14 @@ def buy(request, id_p):
             operations_sales(request)
 
             messages.success(request, 'Venta registrada satisfactoriamente')
-            return redirect('productos')
+            return redirect(reverse('productos_establecimientos', args=(producto.establecimiento.id,)))
 
         context = {}
         return render(request, "punto_venta/producto/productos.html", context)
     return redirect('login_user')
 
 
+@login_required
 def ventas_diaria(request):
     if request.user.is_authenticated:
         sales = Venta_Diaria.objects.all().order_by('fecha_venta')
@@ -586,6 +711,7 @@ def ventas_diaria(request):
     return redirect('login_user')
 
 
+@login_required
 def ventas(request, id_vd):
     if request.user.is_authenticated:
         venta = get_object_or_404(Venta_Diaria, pk=id_vd)
@@ -595,3 +721,27 @@ def ventas(request, id_vd):
         context = {'sales': sales}
         return render(request, "punto_venta/venta/ventas.html", context)
     return redirect('login_user')
+
+
+@login_required
+def materiales(request):
+    materials = Material.objects.all().order_by('id')
+    context = {'materials': materials}
+    return render(request, "almacen/material/materiales.html", context)
+
+
+@login_required
+def agregar_material(request):
+    if request.method == 'POST':
+        productoForm = ProductoForm(request.POST or None, request.FILES or None)
+        if productoForm.is_valid():
+            producto_form = productoForm.save(commit=False)
+            producto_form.save()
+            messages.success(request, "El producto se agregó satisfactoriamente!")
+            return redirect("productos")
+        else:
+            print(productoForm.errors)
+    else:
+        productoForm = ProductoForm()
+    return render(request, 'punto_venta/producto/insertar_producto.html',
+                  {'productoForm': productoForm})

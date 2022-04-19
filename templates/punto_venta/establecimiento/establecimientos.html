@@ -35,6 +35,7 @@
                         <th>Nro</th>
                         <th>Nombre</th>
                         <th>Descripción</th>
+                        <th>Responsable</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
@@ -43,6 +44,7 @@
                         <th>Nro</th>
                         <th>Nombre</th>
                         <th>Descripción</th>
+                        <th>Responsable</th>
                         <th>Acciones</th>
                     </tr>
                     </tfoot>
@@ -52,6 +54,7 @@
                             <td>{{ es.id }}</td>
                             <td>{{ es.nombre_establecimiento }}</td>
                             <td>{{ es.descripcion }}</td>
+                            <td>{{ es.user.first_name }}</td>
                             <td>
                                 <a href="#" type="button" data-toggle="modal"
                                    class="btn btn-primary btn-sm waves-black"
@@ -85,7 +88,7 @@
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form method="POST" id="contact-form" enctype="multipart/form-data" action="{% url  'agregar_establecimiento' %}">{% csrf_token %}
+                <form method="POST" id="contact-form" enctype="multipart/form-data" action="{% url 'agregar_establecimiento' %}">{% csrf_token %}
                     <div class="modal-header">
                         <h4 class="modal-title">Agregar establecimiento</h4>
                         <button type="button" class="close " data-dismiss="modal">&times;</button>
@@ -103,6 +106,16 @@
                             <div class="col-sm-9">
                                 <textarea class="form-control" name="descripcion_establecimiento" placeholder="Escriba la descripción" id="exampleFormControlTextarea1"
                                           rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="exampleFormControlSelect1" class="col-sm-3 col-form-label">A cargo</label>
+                            <div class="col-sm-9">
+                                <select name="user_responsable" class="form-control" id="exampleFormControlSelect1">
+                                    {% for user in users %}
+                                        <option value="{{ user.id }}">{{ user.first_name }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
                     </div>

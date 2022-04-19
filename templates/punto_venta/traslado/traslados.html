@@ -25,7 +25,7 @@
                         <th>Cantidad trasladada</th>
                         <th>Usuario</th>
                         <th>Fecha traslado</th>
-                        <th>Operaciones</th>
+{#                        <th>Operaciones</th>#}
                     </tr>
                     </thead>
                     <tfoot>
@@ -35,7 +35,7 @@
                         <th>Cantidad trasladada</th>
                         <th>Usuario</th>
                         <th>Fecha traslado</th>
-                        <th>Operaciones</th>
+{#                        <th>Operaciones</th>#}
                     </tr>
                     </tfoot>
                     <tbody>
@@ -46,7 +46,7 @@
                             <td>{{ traslado.cantidad_trasladar }}</td>
                             <td>{{ traslado.user.username }}</td>
                             <td>{{ traslado.fecha }}</td>
-                            <td>
+{#                            <td>#}
 {#                                <a href="#" type="button" data-toggle="modal"#}
 {#                                   class="btn btn-primary btn-sm waves-black"#}
 {#                                   data-id="{{ traslado.id }}" data-count="{{ traslado.cantidad_trasladar }}"#}
@@ -55,14 +55,14 @@
 {#                                   title="Editar cantidad" data-target="#confirm-traslado">#}
 {#                                    <i class="fas fa-edit"></i>#}
 {#                                </a>#}
-                                <a href="#" data-href="{% url 'delete_traslado' traslado.id %}" data-toggle="modal"
-                                   class="btn btn-primary btn-sm" data-id="{{ traslado.id }}"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Eliminar traslado"
-                                   data-target="#confirm-delete">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
+{#                                <a href="#" data-href="{% url 'delete_traslado' traslado.id %}" data-toggle="modal"#}
+{#                                   class="btn btn-primary btn-sm" data-id="{{ traslado.id }}"#}
+{#                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "#}
+{#                                   title="Eliminar traslado"#}
+{#                                   data-target="#confirm-delete">#}
+{#                                    <i class="fas fa-trash"></i>#}
+{#                                </a>#}
+{#                            </td>#}
                         </tr>
                     {% endfor %}
                     </tbody>

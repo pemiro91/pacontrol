@@ -1,0 +1,126 @@
+{% extends  'base_admin.html' %}
+{% load static %}
+{% block submenu-superior %}
+    <h1 class="h3 mb-0 text-gray-800">Modificar Usuario</h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'usuarios' %}">Usuarios</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Modificar Usuario</li>
+    </ol>
+{% endblock %}
+{% block content %}
+
+    <!-- DataTable with Hover -->
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary"></h6>
+
+            </div>
+            <div class="card-body">
+                <form role="form" method="post">{% csrf_token %}
+                    <div class="form-group row">
+                        <label for="exampleFormControlName" class="col-sm-3 col-form-label">Nombre(s)</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="exampleFormControlName"
+                                   value="{{ user.first_name }}"
+                                   placeholder="Ernesto" name="first_name">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="exampleFormControlApellido" class="col-sm-3 col-form-label">Apellidos</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="exampleFormControlApellido"
+                                   value="{{ user.last_name }}"
+                                   placeholder="Jiménez Arencibia" name="last_name">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-3 col-form-label">Sexo</label>
+                        <div class="col-sm-9">
+                            {% if user.sexo %}
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="customRadio3" checked="checked" value="1" name="sexo"
+                                           class="custom-control-input">
+                                    <label class="custom-control-label" for="customRadio3">Masculino</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="customRadio4" value="0" name="sexo"
+                                           class="custom-control-input">
+                                    <label class="custom-control-label" for="customRadio4">Femenino</label>
+                                </div>
+                            {% else %}
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="customRadio3" value="1" name="sexo"
+                                           class="custom-control-input">
+                                    <label class="custom-control-label" for="customRadio3">Masculino</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="customRadio4" checked="checked" value="0" name="sexo"
+                                           class="custom-control-input">
+                                    <label class="custom-control-label" for="customRadio4">Femenino</label>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="exampleFormControlSelect1" class="col-sm-3 col-form-label">Asignar rol de:</label>
+                        <div class="col-sm-9">
+                            <select name="rol_de" class="form-control" id="exampleFormControlSelect1">
+                                {% if user.is_dependiente %}
+                                    <option value="dependiente" selected >Dependiente</option>
+                                    <option value="administrador">Administrador</option>
+                                {% else %}
+                                    <option value="dependiente" >Dependiente</option>
+                                    <option value="administrador" selected>Administrador</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="inputCarnet" class="col-sm-3 col-form-label">Carnet de Identidad</label>
+                        <div class="col-sm-9">
+                            <input type="number" value="{{ user.carnet }}" class="form-control"
+                                   id="inputCarnet"
+                                   placeholder="22361236495" name="carnet">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="exampleFormControlUsername" class="col-sm-3 col-form-label">Usuario</label>
+                        <div class="col-sm-9">
+                            <input type="text" value="{{ user.username }}" class="form-control"
+                                   id="exampleFormControlUsername"
+                                   placeholder="ernesto" name="user_name">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="inputPassword3" class="col-sm-3 col-form-label">Contraseña</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" id="inputPassword3"
+                                   placeholder="***********" name="password1">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <button type="submit" class="btn btn-primary" style="background-color: #ff5700;">Modifcar Usuario</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block js %}
+    <!-- Page level plugins -->
+    <script src="{% static 'control_panel/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'control_panel/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable(); // ID From dataTable
+            $('#dataTableHover').DataTable(); // ID From dataTable with Hover
+        });
+    </script>
+
+{% endblock %}
