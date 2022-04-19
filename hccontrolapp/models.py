@@ -104,7 +104,7 @@ class Categoria_Producto(models.Model):
 class Establecimiento(models.Model):
     nombre_establecimiento = models.CharField(max_length=50)
     descripcion_categoria = models.TextField(max_length=50, name='descripcion')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     slug = models.SlugField(unique=True)
 
     def save(self, *args, **kwargs):

@@ -23,14 +23,14 @@ from django.conf.urls.static import static
 urlpatterns = [
                   path('admin/', admin.site.urls),
 
-                  # path('', views.login_user, name="login_user"),
-                  # path('salir', views.logout, name="salir"),
-                  path('', views.panel_home, name="panel"),
+                  path('', views.login_user, name="login_user"),
+                  path('salir', views.logout, name="salir"),
+                  path('panel', views.panel_home, name="panel"),
 
                   path('usuarios', views.usuarios, name="usuarios"),
-                  # path('usuarios/insertar_usuario', views.insertar_usuario, name="insertar_usuario"),
-                  # path('usuarios/editar_usuario/<int:id_user>', views.editar_usuario, name="editar_usuario"),
-                  # path('usuarios/eliminar_usuario/<int:id_user>', views.eliminar_usuario, name="eliminar_usuario"),
+                  path('usuarios/insertar_usuario', views.insertar_usuario, name="insertar_usuario"),
+                  path('usuarios/editar_usuario/<int:id_user>', views.editar_usuario, name="editar_usuario"),
+                  path('usuarios/eliminar_usuario/<int:id_user>', views.eliminar_usuario, name="eliminar_usuario"),
 
                   path('categoria', views.categories_productos, name="categories_productos"),
                   path('categoria/agregar_categoria', views.agregar_categoria, name="agregar_categoria"),
