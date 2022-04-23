@@ -54,7 +54,7 @@
                             <td>{{ es.id }}</td>
                             <td>{{ es.nombre_establecimiento }}</td>
                             <td>{{ es.descripcion }}</td>
-                            <td>{{ es.user.first_name }}</td>
+                            <td>{{ es.user.all|join:", " }}</td>
                             <td>
                                 <a href="#" type="button" data-toggle="modal"
                                    class="btn btn-primary btn-sm waves-black"
@@ -105,13 +105,13 @@
                             <label for="exampleFormControlTextarea1" class="col-sm-3 col-form-label">Descripción</label>
                             <div class="col-sm-9">
                                 <textarea class="form-control" name="descripcion_establecimiento" placeholder="Escriba la descripción" id="exampleFormControlTextarea1"
-                                          rows="3"></textarea>
+                                          rows="3" required></textarea>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="exampleFormControlSelect1" class="col-sm-3 col-form-label">A cargo</label>
+                            <label for="exampleFormControlSelect1" class="col-sm-3 col-form-label">Responsables</label>
                             <div class="col-sm-9">
-                                <select name="user_responsable" class="form-control" id="exampleFormControlSelect1">
+                                <select name="user_responsable" required class="form-control" id="exampleFormControlSelect1" multiple>
                                     {% for user in users %}
                                         <option value="{{ user.id }}">{{ user.first_name }}</option>
                                     {% endfor %}
@@ -157,6 +157,19 @@
                                 <textarea class="form-control" name="descripcion_establecimiento"
                                                                                            placeholder="Escriba la descripción" id="descripcion_establecimiento"
                                                                                            rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="exampleFormControlSelect1" class="col-sm-3 col-form-label">Responsables</label>
+                            <div class="col-sm-9">
+                                <select name="user_responsable" required class="form-control" id="exampleFormControlSelect1" multiple>
+                                    {% for user in establecimiento.user %}
+                                        <option value="{{ user.id }}">{{ user.first_name }}</option>
+                                    {% endfor %}
+                                    {% for user1 in users_rest %}
+                                        <option value="{{ user1.id }}">{{ user1.first_name }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
 

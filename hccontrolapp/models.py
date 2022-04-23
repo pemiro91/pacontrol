@@ -83,9 +83,17 @@ def _slug_strip(value, separator='-'):
 
 
 class User(AbstractUser):
-    carnet = models.CharField(max_length=12, null=True, blank=True)
+    carnet = models.CharField(max_length=12)
     sexo = models.BooleanField(default=False)
     rol = models.BooleanField(default=False)
+    slug = models.SlugField(unique=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.username)
+        super(User, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.first_name
 
 
 class Categoria_Producto(models.Model):
@@ -103,8 +111,8 @@ class Categoria_Producto(models.Model):
 
 class Establecimiento(models.Model):
     nombre_establecimiento = models.CharField(max_length=50)
-    descripcion_categoria = models.TextField(max_length=50, name='descripcion')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    descripcion = models.TextField(max_length=50, name='descripcion')
+    user = models.ManyToManyField(User)
     slug = models.SlugField(unique=True)
 
     def save(self, *args, **kwargs):
@@ -228,6 +236,7 @@ class Venta_Diaria(models.Model):
     ganancia_bruta = models.FloatField(max_length=100)
     gasto = models.FloatField(max_length=100)
     ganancia_neta = models.FloatField(max_length=100)
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE, null=True, blank=True)
     slug = models.SlugField(unique=True, null=True)
 
     def save(self, *args, **kwargs):

@@ -23,7 +23,9 @@
                         <th>Fecha</th>
                         <th>Nombre producto</th>
                         <th>Cantidad mermada</th>
-                        <th>Costo</th>
+                        {% if request.user.rol == False %}
+                            <th>Costo</th>
+                        {% endif %}
                         <th>Monto total</th>
                         <th>Operaciones</th>
 
@@ -34,10 +36,11 @@
                         <th>Fecha</th>
                         <th>Nombre producto</th>
                         <th>Cantidad mermada</th>
-                        <th>Costo</th>
+                        {% if request.user.rol == False %}
+                            <th>Costo</th>
+                        {% endif %}
                         <th>Monto total</th>
                         <th>Operaciones</th>
-
                     </tr>
                     </tfoot>
                     <tbody>
@@ -46,7 +49,9 @@
                             <td>{{ merma.fecha|date:'d-m-Y' }}</td>
                             <td>{{ merma.producto.nombre_producto }}</td>
                             <td>{{ merma.cantidad_producto_merma }}</td>
-                            <td>{{ merma.producto.costo }}</td>
+                            {% if request.user.rol == False %}
+                                <td>{{ merma.producto.costo }}</td>
+                            {% endif %}
                             <td>{% widthratio merma.producto.costo 1 merma.cantidad_producto_merma %}</td>
                             <td>
                                 <a href="#" type="button" data-toggle="modal"
@@ -67,7 +72,6 @@
                             </td>
                         </tr>
                     {% endfor %}
-
                     </tbody>
                 </table>
             </div>

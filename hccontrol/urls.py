@@ -29,8 +29,9 @@ urlpatterns = [
 
                   path('usuarios', views.usuarios, name="usuarios"),
                   path('usuarios/insertar_usuario', views.insertar_usuario, name="insertar_usuario"),
-                  path('usuarios/editar_usuario/<int:id_user>', views.editar_usuario, name="editar_usuario"),
-                  path('usuarios/eliminar_usuario/<int:id_user>', views.eliminar_usuario, name="eliminar_usuario"),
+                  path('usuarios/editar_usuario/<slug:slug_username>', views.editar_usuario, name="editar_usuario"),
+                  path('usuarios/eliminar_usuario/<slug:slug_username>', views.eliminar_usuario,
+                       name="eliminar_usuario"),
 
                   path('categoria', views.categories_productos, name="categories_productos"),
                   path('categoria/agregar_categoria', views.agregar_categoria, name="agregar_categoria"),
@@ -54,22 +55,27 @@ urlpatterns = [
                   path('productos/eliminar_producto/<int:id_p>', views.eliminar_producto, name="eliminar_producto"),
 
                   path('entradas', views.entradas, name="entradas"),
+                  path('entradas/<slug:store>', views.entradas_for_store, name="entradas_store"),
                   path('productos_establecimientos/add_incrementar/<int:id_p>', views.add_incrementar,
                        name="add_incrementar"),
                   path('entradas/edit_entrada/<int:id_e>', views.edit_entrada, name="edit_entrada"),
                   path('entradas/delete_entrada/<int:id_e>', views.delete_entrada, name="delete_entrada"),
 
                   path('mermas', views.mermas, name="mermas"),
+                  path('mermas/<slug:store>', views.mermas_store, name="mermas_store"),
                   path('productos_establecimientos/add_merma/<int:id_p>', views.add_merma, name="add_merma"),
                   path('mermas/edit_merma/<int:id_m>', views.edit_merma, name="edit_merma"),
                   path('mermas/delete_merma/<int:id_m>', views.delete_merma, name="delete_merma"),
 
                   path('expenses', views.expenses, name="expenses"),
                   path('expenses/add_spending', views.add_spending, name="add_spending"),
+                  path('expenses/add_spending/<slug:store>', views.add_spending_store, name="add_spending_store"),
 
                   path('productos_establecimientos/buy/<int:id_p>', views.buy, name="buy"),
                   path('ventas_diaria', views.ventas_diaria, name="ventas_diaria"),
+                  path('ventas_diaria/<slug:store>', views.ventas_diaria_store, name="ventas_diaria_store"),
                   path('ventas_diaria/ventas/<int:id_vd>', views.ventas, name="ventas"),
+                  path('ventas_diaria/ventas/<int:id_vd>/<slug:store>', views.ventas_slug, name="ventas_slug"),
 
                   path('traslados', views.traslados, name="traslados"),
                   path('productos_establecimientos/traslado/<slug:product_parameter>', views.traslado, name="traslado"),

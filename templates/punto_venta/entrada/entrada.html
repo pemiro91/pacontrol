@@ -17,54 +17,103 @@
 
             </div>
             <div class="table-responsive p-3">
-                <table class="table align-items-center table-flush table-hover" id="dataTableHover">
-                    <thead class="thead-light">
-                    <tr>
-                        <th>Nombre producto</th>
-                        <th>Cantidad incrementada</th>
-                        <th>Costo</th>
-                        <th>Monto total</th>
-                        <th>Operaciones</th>
-                    </tr>
-                    </thead>
-                    <tfoot>
-                    <tr>
-                        <th>Nombre producto</th>
-                        <th>Cantidad incrementada</th>
-                        <th>Costo</th>
-                        <th>Monto total</th>
-                        <th>Operaciones</th>
-                    </tr>
-                    </tfoot>
-                    <tbody>
-                    {% for entrada in increases %}
+                {% if request.user.rol == False or request.user.is_superuser %}
+                    <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                        <thead class="thead-light">
                         <tr>
-                            <td>{{ entrada.producto.nombre_producto }}</td>
-                            <td>{{ entrada.cantidad_producto_entrada }}</td>
-                            <td>{{ entrada.producto.costo }}</td>
-                            <td>{% widthratio entrada.producto.costo 1 entrada.cantidad_producto_entrada %}</td>
-                            <td>
-                                <a href="#" type="button" data-toggle="modal"
-                                   class="btn btn-primary btn-sm waves-black"
-                                   data-id="{{ entrada.id }}" data-count="{{ entrada.cantidad_producto_entrada }}"
-                                   data-form="{% url 'edit_entrada' entrada.id %}"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Editar cantidad" data-target="#confirm-entrada">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" data-href="{% url 'delete_entrada' entrada.id %}" data-toggle="modal"
-                                   class="btn btn-primary btn-sm" data-id="{{ entrada.id }}"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Eliminar entrada"
-                                   data-target="#confirm-delete">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
+                            <th>Nombre producto</th>
+                            <th>Cantidad incrementada</th>
+                            <th>Costo</th>
+                            <th>Monto total</th>
+                            <th>Operaciones</th>
                         </tr>
-                    {% endfor %}
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>Nombre producto</th>
+                            <th>Cantidad incrementada</th>
+                            <th>Costo</th>
+                            <th>Monto total</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        {% for entrada in increases_all %}
+                            <tr>
+                                <td>{{ entrada.producto.nombre_producto }}</td>
+                                <td>{{ entrada.cantidad_producto_entrada }}</td>
+                                <td>{{ entrada.producto.costo }}</td>
+                                <td>{% widthratio entrada.producto.costo 1 entrada.cantidad_producto_entrada %}</td>
+                                <td>
+                                    <a href="#" type="button" data-toggle="modal"
+                                       class="btn btn-primary btn-sm waves-black"
+                                       data-id="{{ entrada.id }}" data-count="{{ entrada.cantidad_producto_entrada }}"
+                                       data-form="{% url 'edit_entrada' entrada.id %}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Editar cantidad" data-target="#confirm-entrada">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" data-href="{% url 'delete_entrada' entrada.id %}" data-toggle="modal"
+                                       class="btn btn-primary btn-sm" data-id="{{ entrada.id }}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Eliminar entrada"
+                                       data-target="#confirm-delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
 
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                {% else %}
+                    <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Nombre producto</th>
+                                <th>Cantidad incrementada</th>
+                                <th>Monto total</th>
+                                <th>Operaciones</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th>Nombre producto</th>
+                                <th>Cantidad incrementada</th>
+                                <th>Monto total</th>
+                                <th>Operaciones</th>
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                        {% for entrada in increases %}
+                            <tr>
+                                <td>{{ entrada.producto.nombre_producto }}</td>
+                                <td>{{ entrada.cantidad_producto_entrada }}</td>
+                                <td>{% widthratio entrada.producto.costo 1 entrada.cantidad_producto_entrada %}</td>
+                                <td>
+                                    <a href="#" type="button" data-toggle="modal"
+                                       class="btn btn-primary btn-sm waves-black"
+                                       data-id="{{ entrada.id }}" data-count="{{ entrada.cantidad_producto_entrada }}"
+                                       data-form="{% url 'edit_entrada' entrada.id %}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Editar cantidad" data-target="#confirm-entrada">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" data-href="{% url 'delete_entrada' entrada.id %}" data-toggle="modal"
+                                       class="btn btn-primary btn-sm" data-id="{{ entrada.id }}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Eliminar entrada"
+                                       data-target="#confirm-delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                {% endif %}
+
             </div>
         </div>
     </div>

@@ -129,22 +129,28 @@ class MaterialForm(forms.ModelForm):
         }
 
 
-CHOICES = [('0', 'Masculino'),
-           ('1', 'Femenino')]
+CHOICES = [
+    (False, 'Masculino'),
+    (True, 'Femenino')
+]
 
-CHOICES_ROL = [('0', 'Dependiente'),
-               ('1', 'Administrador')]
+CHOICES_ROL = [(True, 'Dependiente'),
+               (False, 'Administrador')]
 
 
 class UserForm(UserCreationForm):
-    password1 = forms.CharField(max_length=16, widget=forms.PasswordInput(
+    password1 = forms.CharField(max_length=20, widget=forms.PasswordInput(
         attrs={'class': 'form-control', 'placeholder': 'Escriba la contraseña'}), label='Contraseña')
-    password2 = forms.CharField(max_length=16, widget=forms.PasswordInput(
+    password2 = forms.CharField(max_length=20, widget=forms.PasswordInput(
         attrs={'class': 'form-control', 'placeholder': 'Confirmar contraseña'}), label='Confirmar contraseña')
+    rol = forms.ChoiceField(widget=forms.Select(attrs={'class': 'select form-control',
+                                                       'label': 'Seleccione el rol del usuario',
+                                                       'required': True}), choices=CHOICES_ROL)
+    sexo = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect)
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username', 'password1', 'password2', 'rol', 'carnet', 'sexo')
+        fields = ('first_name', 'last_name', 'carnet', 'rol', 'sexo', 'username', 'password1', 'password2')
 
         widgets = {
             'first_name': forms.TextInput(
@@ -156,7 +162,8 @@ class UserForm(UserCreationForm):
             'username': forms.TextInput(
                 attrs={'class': 'form-control text', 'placeholder': 'Escriba el usuario', 'required': True}),
 
-            'is_dependiente': forms.RadioSelect,
+            'rol': forms.Select(attrs={'class': 'select form-control', 'label': 'Seleccione el rol del usuario',
+                                       'required': True}),
 
             'sexo': forms.RadioSelect,
 
@@ -171,7 +178,7 @@ class UserForm(UserCreationForm):
             "username": "Usuario",
             "password1": "Contraseña",
             "password2": "Confirmar contraseña",
-            "is_dependiente": "Rol",
+            "rol": "Rol",
             "carnet": "Carnet de identidad",
             "sexo": "Género",
         }

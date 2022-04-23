@@ -45,18 +45,18 @@
                             <td>{{ usuario.first_name }} {{ usuario.last_name }}</td>
                             <td>{{ usuario.username }}</td>
                             <td>{{ usuario.carnet }}</td>
-                            {% if usuario.is_dependiente %}
+                            {% if usuario.rol %}
                                 <td>Dependiente</td>
                             {% else %}
                                 <td>Administrador</td>
                             {% endif %}
                             <td>
-                                <a href="{% url 'editar_usuario' usuario.id %}" title="Editar usuario"
+                                <a href="{% url 'editar_usuario' usuario.slug %}" title="Editar usuario"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
                                    class="btn btn-primary btn-sm">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="#" data-href="{% url 'eliminar_usuario' usuario.id %}" data-toggle="modal"
+                                <a href="#" data-href="{% url 'eliminar_usuario' usuario.slug %}" data-toggle="modal"
                                    class="btn btn-primary btn-sm" data-id="{{ usuario.id }}"
                                    title="Eliminar Usuario"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "

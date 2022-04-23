@@ -18,87 +18,31 @@
             </div>
             <div class="card-body">
                 <form role="form" method="post">{% csrf_token %}
-                    <div class="form-group row">
-                        <label for="exampleFormControlName" class="col-sm-3 col-form-label">Nombre(s)</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="exampleFormControlName"
-                                   value="{{ user.first_name }}"
-                                   placeholder="Ernesto" name="first_name">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="exampleFormControlApellido" class="col-sm-3 col-form-label">Apellidos</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="exampleFormControlApellido"
-                                   value="{{ user.last_name }}"
-                                   placeholder="Jiménez Arencibia" name="last_name">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="inputEmail3" class="col-sm-3 col-form-label">Sexo</label>
-                        <div class="col-sm-9">
-                            {% if user.sexo %}
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" id="customRadio3" checked="checked" value="1" name="sexo"
-                                           class="custom-control-input">
-                                    <label class="custom-control-label" for="customRadio3">Masculino</label>
+                    {% for hidden in user.hidden_fields %}
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label"
+                                   for="{{ hidden.name }}">{{ hidden.label }}</label>
+                            <div class="col-sm-9">
+                                <div class="form-group">
+                                    <div class="form-line">
+                                        {{ hidden }}
+                                    </div>
                                 </div>
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" id="customRadio4" value="0" name="sexo"
-                                           class="custom-control-input">
-                                    <label class="custom-control-label" for="customRadio4">Femenino</label>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% for field in update_form %}
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="{{ field.name }}">{{ field.label }}</label>
+                            <div class="col-sm-9">
+                                <div class="form-group">
+                                    <div class="form-line">
+                                        {{ field }}
+                                    </div>
                                 </div>
-                            {% else %}
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" id="customRadio3" value="1" name="sexo"
-                                           class="custom-control-input">
-                                    <label class="custom-control-label" for="customRadio3">Masculino</label>
-                                </div>
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" id="customRadio4" checked="checked" value="0" name="sexo"
-                                           class="custom-control-input">
-                                    <label class="custom-control-label" for="customRadio4">Femenino</label>
-                                </div>
-                            {% endif %}
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="exampleFormControlSelect1" class="col-sm-3 col-form-label">Asignar rol de:</label>
-                        <div class="col-sm-9">
-                            <select name="rol_de" class="form-control" id="exampleFormControlSelect1">
-                                {% if user.is_dependiente %}
-                                    <option value="dependiente" selected >Dependiente</option>
-                                    <option value="administrador">Administrador</option>
-                                {% else %}
-                                    <option value="dependiente" >Dependiente</option>
-                                    <option value="administrador" selected>Administrador</option>
-                                {% endif %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="inputCarnet" class="col-sm-3 col-form-label">Carnet de Identidad</label>
-                        <div class="col-sm-9">
-                            <input type="number" value="{{ user.carnet }}" class="form-control"
-                                   id="inputCarnet"
-                                   placeholder="22361236495" name="carnet">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="exampleFormControlUsername" class="col-sm-3 col-form-label">Usuario</label>
-                        <div class="col-sm-9">
-                            <input type="text" value="{{ user.username }}" class="form-control"
-                                   id="exampleFormControlUsername"
-                                   placeholder="ernesto" name="user_name">
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <label for="inputPassword3" class="col-sm-3 col-form-label">Contraseña</label>
-                        <div class="col-sm-9">
-                            <input type="password" class="form-control" id="inputPassword3"
-                                   placeholder="***********" name="password1">
-                        </div>
-                    </div>
+                    {% endfor %}
                     <div class="form-group row">
                         <div class="col-sm-10">
                             <button type="submit" class="btn btn-primary" style="background-color: #ff5700;">Modifcar Usuario</button>

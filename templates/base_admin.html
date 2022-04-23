@@ -44,27 +44,54 @@
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>Resumen</span></a>
         </li>
-        {% if user.is_administrador or user.is_superuser %}
+        <!-- Dependientes-->
+         {% if request.user.rol == True %}
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">
+                {% if puntos_venta.count == 1 %}
+                    Establecimiento
+                {% else %}
+                    Establecimientos
+                {% endif %}
+            </div>
+            {% for punto in puntos_venta %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'productos_establecimientos' punto.slug %}">
+                        <i class="fas fa-fw fa-home"></i>
+                        <span>{{ punto.nombre_establecimiento }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+         {% endif %}
+        <!-- Administrador-->
+        {% if request.user.rol == False or request.user.is_superuser %}
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Establecimientos</div>
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-toggle="collapse" data-target="#collapseBootstrap2"
-                   aria-expanded="true" aria-controls="collapseBootstrap2">
-                    <i class="far fa-fw fa-clipboard"></i>
-                    <span>Puntos de venta</span>
-                </a>
-                <div id="collapseBootstrap2" class="collapse" aria-labelledby="headingBootstrap"
-                     data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        {% for punto in puntos_venta %}
-                           <a class="collapse-item" href="{% url 'productos_establecimientos' punto.slug %}">
-                               {{ punto.nombre_establecimiento }}
-                           </a>
-                        {% endfor %}
+            {% if puntos_venta_all %}
+                <li class="nav-item">
+                    <a class="nav-link collapsed" data-toggle="collapse" data-target="#collapseBootstrap2"
+                       aria-expanded="true" aria-controls="collapseBootstrap2">
+                        <i class="fas fa-fw fa-home"></i>
+                        <span>Puntos de venta</span>
+                    </a>
+                    <div id="collapseBootstrap2" class="collapse" aria-labelledby="headingBootstrap"
+                         data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            {% for punto in puntos_venta_all %}
+                               <a class="collapse-item" href="{% url 'productos_establecimientos' punto.slug %}">
+                                   {{ punto.nombre_establecimiento }}
+                               </a>
+                            {% endfor %}
+                        </div>
                     </div>
-                </div>
+                </li>
+            {% endif %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'productos' %}">
+                    <i class="fas fa-fw fa-warehouse"></i>
+                    <span>Almancén</span>
+                </a>
             </li>
-
         {% endif %}
 
         <hr class="sidebar-divider">
@@ -75,29 +102,39 @@
                 <li class="nav-item">
                     <a class="nav-link collapsed" data-toggle="collapse" data-target="#collapseBootstrap"
                        aria-expanded="true" aria-controls="collapseBootstrap">
-                        <i class="fas fa-fw fa-warehouse"></i>
-                        <span>Almancén</span>
+                        <i class="far fa-fw fa-clipboard"></i>
+                        <span>Operaciones</span>
                     </a>
                     <div id="collapseBootstrap" class="collapse" aria-labelledby="headingBootstrap"
                          data-parent="#accordionSidebar">
-
                         <div class="bg-white py-2 collapse-inner rounded">
-                            <h6 class="collapse-header">Productos</h6>
-                            {% if user.is_administrador or user.is_superuser %}
+                            <h6 class="collapse-header">Operaciones</h6>
+                            {% if request.user.rol == False or request.user.is_superuser %}
                                 <a class="collapse-item" href="{% url 'establecimientos' %}">Establecimientos</a>
                                 <a class="collapse-item" href="{% url 'categories_productos' %}">Categorías</a>
                                 <a class="collapse-item" href="{% url 'productos' %}">Productos</a>
                             {% endif %}
-                            <a class="collapse-item" href="{% url 'mermas' %}">Mermas</a>
-                            <a class="collapse-item" href="{% url 'entradas' %}">Entradas</a>
-                            <a class="collapse-item" href="{% url 'ventas_diaria' %}">Resumen ventas</a>
-                            <a class="collapse-item" href="{% url 'expenses' %}">Gastos</a>
+                            {% if request.user.rol == True %}
+                                {% if puntos_venta.first %}
+                                    <a class="collapse-item" href="{% url 'mermas_store' puntos_venta.first.slug %}">Mermas</a>
+                                    <a class="collapse-item" href="{% url 'entradas_store' puntos_venta.first.slug %}">Entradas</a>
+                                    <a class="collapse-item" href="{% url 'ventas_diaria_store' puntos_venta.first.slug %}">Resumen ventas</a>
+                                    <a class="collapse-item" href="{% url 'expenses' %}">Gastos</a>
+                                {% endif %}
+                            {% else %}
+                                <a class="collapse-item" href="{% url 'mermas' %}">Mermas</a>
+                                <a class="collapse-item" href="{% url 'entradas' %}">Entradas</a>
+                                <a class="collapse-item" href="{% url 'ventas_diaria' %}">Resumen ventas</a>
+                                <a class="collapse-item" href="{% url 'expenses' %}">Gastos</a>
+                            {% endif %}
+
+
                             <a class="collapse-item" href="{% url 'traslados' %}">Traslados</a>
                         </div>
                     </div>
                 </li>
 
-            {% if request.user.is_administrador or request.user.is_superuser %}
+            {% if request.user.rol == False or request.user.is_superuser %}
                 <hr class="sidebar-divider">
                 <div class="sidebar-heading">
                     Gestión de Usuarios
@@ -127,7 +164,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                            data-toggle="dropdown"
                            aria-haspopup="true" aria-expanded="false">
-                            {% if request.user.sexo == False %}
+                            {% if request.user.sexo == True %}
                                 <img class="img-profile rounded-circle" src="{% static 'control_panel/img/girl.png' %}"
                                      style="max-width: 60px">
                                 <span class="ml-2 d-none d-lg-inline text-white small">
@@ -250,10 +287,10 @@
     const message_ele2 = document.getElementById("message_container2");
     setTimeout(function(){
        message_ele.style.display = "none";
-    }, 2000);
+    }, 3000);
     setTimeout(function(){
        message_ele2.style.display = "none";
-    }, 2000);
+    }, 3000);
 </script>
 
 {% block js %}

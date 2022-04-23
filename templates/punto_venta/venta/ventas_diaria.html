@@ -38,6 +38,7 @@
                 </div>
             </div>
 
+        {% if request.user.rol == False or request.user.is_superuser %}
             {% if sales_filter %}
                 <div class="table-responsive p-3">
                     <table class="table align-items-center table-flush table-hover" id="dataTableHover">
@@ -141,6 +142,105 @@
                     </table>
                 </div>
             {% endif %}
+        {% else %}
+             {% if sales_filter_store %}
+                <div class="table-responsive p-3">
+                    <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                            <th>Venta Total</th>
+                            <th>Ganancia Bruta</th>
+                            <th>Gastos</th>
+                            <th>Ganancia Neta</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                            <th>Venta Total</th>
+                            <th>Ganancia Bruta</th>
+                            <th>Gastos</th>
+                            <th>Ganancia Neta</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        {% for sale in sales_filter_store %}
+                            <tr>
+                                <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
+                                <td>{{ sale.cantidad }}</td>
+                                <td>{{ sale.venta_total }}</td>
+                                <td>{{ sale.ganancia_bruta }}</td>
+                                <td>{{ sale.gasto }}</td>
+                                <td>{{ sale.ganancia_neta }}</td>
+                                {% if sale.cantidad != 0 %}
+                                    <td>
+                                        <a href="{% url 'ventas_slug' sale.id sale.establecimiento.slug %}" title="Detalles de la venta"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="table-responsive p-3">
+                    <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                            <th>Venta Total</th>
+                            <th>Ganancia Bruta</th>
+                            <th>Gastos</th>
+                            <th>Ganancia Neta</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                            <th>Venta Total</th>
+                            <th>Ganancia Bruta</th>
+                            <th>Gastos</th>
+                            <th>Ganancia Neta</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        {% for sale in sales_establecimiento %}
+                            <tr>
+                                <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
+                                <td>{{ sale.cantidad }}</td>
+                                <td>{{ sale.venta_total }}</td>
+                                <td>{{ sale.ganancia_bruta }}</td>
+                                <td>{{ sale.gasto }}</td>
+                                <td>{{ sale.ganancia_neta }}</td>
+                                {% if sale.cantidad != 0 %}
+                                    <td>
+                                        <a href="{% url 'ventas_slug' sale.id sale.establecimiento.slug %}" title="Detalles de la venta"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% endif %}
         </div>
     </div>
 
