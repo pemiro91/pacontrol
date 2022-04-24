@@ -27,6 +27,9 @@
                             <th>Costo</th>
                         {% endif %}
                         <th>Monto total</th>
+                        {% if request.user.rol == False %}
+                            <th>Establecimiento</th>
+                        {% endif %}
                         <th>Operaciones</th>
 
                     </tr>
@@ -40,38 +43,84 @@
                             <th>Costo</th>
                         {% endif %}
                         <th>Monto total</th>
+                        {% if request.user.rol == False %}
+                            <th>Establecimiento</th>
+                        {% endif %}
                         <th>Operaciones</th>
                     </tr>
                     </tfoot>
                     <tbody>
-                    {% for merma in mermas %}
-                        <tr>
-                            <td>{{ merma.fecha|date:'d-m-Y' }}</td>
-                            <td>{{ merma.producto.nombre_producto }}</td>
-                            <td>{{ merma.cantidad_producto_merma }}</td>
-                            {% if request.user.rol == False %}
-                                <td>{{ merma.producto.costo }}</td>
-                            {% endif %}
-                            <td>{% widthratio merma.producto.costo 1 merma.cantidad_producto_merma %}</td>
-                            <td>
-                                <a href="#" type="button" data-toggle="modal"
-                                   class="btn btn-primary btn-sm waves-black"
-                                   data-id="{{ merma.id }}" data-count="{{ merma.cantidad_producto_merma }}"
-                                   data-form="{% url 'edit_merma' merma.id %}"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Editar cantidad" data-target="#confirm-merma">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" data-href="{% url 'delete_merma' merma.id %}" data-toggle="modal"
-                                   class="btn btn-primary btn-sm" data-id="{{ merma.id }}"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Eliminar merma"
-                                   data-target="#confirm-delete">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
+                    {% if request.user.rol == False %}
+                        {% for merma in mermas %}
+                            <tr>
+                                <td>{{ merma.fecha|date:'d-m-Y' }}</td>
+                                <td>{{ merma.producto.nombre_producto }}</td>
+                                <td>{{ merma.cantidad_producto_merma }}</td>
+                                {% if request.user.rol == False %}
+                                    <td>{{ merma.producto.costo }}</td>
+                                {% endif %}
+                                {% if request.user.rol == True %}
+                                    <td>{% widthratio merma.producto.precio_venta 1 merma.cantidad_producto_merma %}</td>
+                                {% else %}
+                                    <td>{% widthratio merma.producto.costo 1 merma.cantidad_producto_merma %}</td>
+                                {% endif %}
+                                {% if request.user.rol == False %}
+                                    <td>{{ merma.establecimiento.nombre_establecimiento }}</td>
+                                {% endif %}
+                                <td>
+                                    <a href="#" type="button" data-toggle="modal"
+                                       class="btn btn-primary btn-sm waves-black"
+                                       data-id="{{ merma.id }}" data-count="{{ merma.cantidad_producto_merma }}"
+                                       data-form="{% url 'edit_merma' merma.id %}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Editar cantidad" data-target="#confirm-merma">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" data-href="{% url 'delete_merma' merma.id %}" data-toggle="modal"
+                                       class="btn btn-primary btn-sm" data-id="{{ merma.id }}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Eliminar merma"
+                                       data-target="#confirm-delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        {% for merma in mermas_store %}
+                            <tr>
+                                <td>{{ merma.fecha|date:'d-m-Y' }}</td>
+                                <td>{{ merma.producto.nombre_producto }}</td>
+                                <td>{{ merma.cantidad_producto_merma }}</td>
+                                {% if request.user.rol == False %}
+                                    <td>{{ merma.producto.costo }}</td>
+                                {% endif %}
+                                {% if request.user.rol == True %}
+                                    <td>{% widthratio merma.producto.precio_venta 1 merma.cantidad_producto_merma %}</td>
+                                {% else %}
+                                    <td>{% widthratio merma.producto.costo 1 merma.cantidad_producto_merma %}</td>
+                                {% endif %}
+                                <td>
+                                    <a href="#" type="button" data-toggle="modal"
+                                       class="btn btn-primary btn-sm waves-black"
+                                       data-id="{{ merma.id }}" data-count="{{ merma.cantidad_producto_merma }}"
+                                       data-form="{% url 'edit_merma' merma.id %}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Editar cantidad" data-target="#confirm-merma">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" data-href="{% url 'delete_merma' merma.id %}" data-toggle="modal"
+                                       class="btn btn-primary btn-sm" data-id="{{ merma.id }}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Eliminar merma"
+                                       data-target="#confirm-delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+
                     </tbody>
                 </table>
             </div>

@@ -3,7 +3,7 @@
 {% block submenu-superior %}
     <h1 class="h3 mb-0 text-gray-800">Reporte de gastos</h1>
     <ol class="breadcrumb">
-        {% if request.user.is_administrador or request.user.is_superuser %}
+        {% if request.user.rol == False or request.user.is_superuser %}
             <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
         {% endif %}
         <li class="breadcrumb-item active" aria-current="page">Gastos</li>
@@ -23,7 +23,7 @@
                 <h6 class="m-0 font-weight-bold text-primary">Tablero de gastos</h6>
                 <a href="#" data-toggle="modal" data-target="#confirm-gasto" type="button"
                    class="btn btn-primary mb-1" style="background-color: #ff5700;"><i
-                        class="fas fa-plus"></i> Agregar</a>
+                        class="fas fa-sort-amount-down"></i> Agregar</a>
 
             </div>
             <div class="table-responsive p-3">
@@ -32,27 +32,45 @@
                     <tr>
                         <th>Fecha</th>
                         <th>Hora</th>
-                        <th>Nombre</th>
+                        <th>Concepto</th>
                         <th>Monto</th>
+                        {% if request.user.rol == False %}
+                            <th>Establecimiento</th>
+                        {% endif %}
                     </tr>
                     </thead>
                     <tfoot>
                     <tr>
                         <th>Fecha</th>
                         <th>Hora</th>
-                        <th>Nombre</th>
+                        <th>Concepto</th>
                         <th>Monto</th>
+                        {% if request.user.rol == False %}
+                            <th>Establecimiento</th>
+                        {% endif %}
                     </tr>
                     </tfoot>
                     <tbody>
-                    {% for gasto in gastos %}
-                        <tr>
+                    {% if request.user.rol == True %}
+                        {% for gasto in gastos_store %}
+                            <tr>
                                 <td>{{ gasto.fecha_gasto|date:'d/m/Y' }}</td>
-                            <td>{{ gasto.fecha_gasto|time:'g:iA'|lower }}</td>
-                            <td>{{ gasto.concepto }}</td>
-                            <td>{{ gasto.monto_gasto }}</td>
-                        </tr>
-                    {% endfor %}
+                                <td>{{ gasto.fecha_gasto|time:'g:iA'|lower }}</td>
+                                <td>{{ gasto.concepto }}</td>
+                                <td>{{ gasto.monto_gasto }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        {% for gasto in gastos %}
+                            <tr>
+                                <td>{{ gasto.fecha_gasto|date:'d/m/Y' }}</td>
+                                <td>{{ gasto.fecha_gasto|time:'g:iA'|lower }}</td>
+                                <td>{{ gasto.concepto }}</td>
+                                <td>{{ gasto.monto_gasto }}</td>
+                                <td>{{ gasto.establecimiento.nombre_establecimiento }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
                     </tbody>
                 </table>
             </div>

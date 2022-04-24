@@ -290,6 +290,13 @@ def traslados(request):
 
 
 @login_required
+def traslados_store(request, store):
+    transfers = Traslado.objects.filter(establecimiento_padre__slug=store).order_by('id')
+    context = {'traslados_store': transfers}
+    return render(request, "punto_venta/traslado/traslados.html", context)
+
+
+@login_required
 def edit_traslado(request, id_t=None):
     if request.user.is_authenticated:
         move = Traslado.objects.get(id=id_t)
@@ -513,7 +520,7 @@ def mermas(request):
 @login_required
 def mermas_store(request, store):
     decrease = Merma.objects.filter(establecimiento__slug=store)
-    context = {'mermas': decrease}
+    context = {'mermas_store': decrease}
     return render(request, "punto_venta/merma/merma.html", context)
 
 
@@ -682,9 +689,9 @@ def add_spending_store(request, store):
             operations_sales_store(request, establecimiento.id)
 
             messages.success(request, 'Gasto registrado satisfactoriamente')
-            return redirect('expenses')
+            return redirect(reverse('productos_establecimientos', args=(store,)))
         context = {}
-        return render(request, "punto_venta/gasto/gastos.html", context)
+        return render(request, "punto_venta/producto/productos_establecimientos.html", context)
     return redirect('login_user')
 
 
@@ -693,6 +700,15 @@ def expenses(request):
     if request.user.is_authenticated:
         gastos = Gastos.objects.all()
         context = {'gastos': gastos}
+        return render(request, "punto_venta/gasto/gastos.html", context)
+    return redirect('login_user')
+
+
+@login_required
+def expenses_store(request, store):
+    if request.user.is_authenticated:
+        gastos = Gastos.objects.filter(establecimiento__slug=store)
+        context = {'gastos_store': gastos}
         return render(request, "punto_venta/gasto/gastos.html", context)
     return redirect('login_user')
 

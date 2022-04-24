@@ -68,6 +68,7 @@ urlpatterns = [
                   path('mermas/delete_merma/<int:id_m>', views.delete_merma, name="delete_merma"),
 
                   path('expenses', views.expenses, name="expenses"),
+                  path('expenses/<slug:store>', views.expenses_store, name="expenses_store"),
                   path('expenses/add_spending', views.add_spending, name="add_spending"),
                   path('expenses/add_spending/<slug:store>', views.add_spending_store, name="add_spending_store"),
 
@@ -78,6 +79,7 @@ urlpatterns = [
                   path('ventas_diaria/ventas/<int:id_vd>/<slug:store>', views.ventas_slug, name="ventas_slug"),
 
                   path('traslados', views.traslados, name="traslados"),
+                  path('traslados/<slug:store>', views.traslados_store, name="traslados_store"),
                   path('productos_establecimientos/traslado/<slug:product_parameter>', views.traslado, name="traslado"),
                   path('traslados/edit_traslado/<int:id_t>', views.edit_traslado, name="edit_traslado"),
                   path('mermas/delete_traslado/<int:id_t>', views.delete_traslado, name="delete_traslado"),

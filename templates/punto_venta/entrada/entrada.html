@@ -25,6 +25,7 @@
                             <th>Cantidad incrementada</th>
                             <th>Costo</th>
                             <th>Monto total</th>
+                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </thead>
@@ -34,6 +35,7 @@
                             <th>Cantidad incrementada</th>
                             <th>Costo</th>
                             <th>Monto total</th>
+                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </tfoot>
@@ -44,6 +46,7 @@
                                 <td>{{ entrada.cantidad_producto_entrada }}</td>
                                 <td>{{ entrada.producto.costo }}</td>
                                 <td>{% widthratio entrada.producto.costo 1 entrada.cantidad_producto_entrada %}</td>
+                                <td>{{ entrada.establecimiento.nombre_establecimiento }}</td>
                                 <td>
                                     <a href="#" type="button" data-toggle="modal"
                                        class="btn btn-primary btn-sm waves-black"

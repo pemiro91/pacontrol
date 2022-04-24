@@ -51,6 +51,7 @@
                             <th>Ganancia</th>
                             <th>Gastos</th>
                             <th>Gan. Real</th>
+                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </thead>
@@ -63,6 +64,7 @@
                             <th>Ganancia</th>
                             <th>Gastos</th>
                             <th>Gan. Real</th>
+                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </tfoot>
@@ -76,6 +78,8 @@
                                 <td>{{ sale.ganancia }}</td>
                                 <td>{{ sale.gasto }}</td>
                                 <td>{{ sale.ganancia_real }}</td>
+                                <td>{{ sale.establecimiento.nombre_establecimiento }}</td>
+
                                 {% if sale.cantidad != 0 %}
                                     <td>
                                         <a href="{% url 'ventas' sale.id %}" title="Detalles de la venta"
@@ -102,6 +106,7 @@
                             <th>Ganancia Bruta</th>
                             <th>Gastos</th>
                             <th>Ganancia Neta</th>
+                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </thead>
@@ -114,6 +119,7 @@
                             <th>Ganancia Bruta</th>
                             <th>Gastos</th>
                             <th>Ganancia Neta</th>
+                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </tfoot>
@@ -127,6 +133,7 @@
                                 <td>{{ sale.ganancia_bruta }}</td>
                                 <td>{{ sale.gasto }}</td>
                                 <td>{{ sale.ganancia_neta }}</td>
+                                <td>{{ sale.establecimiento.nombre_establecimiento }}</td>
                                 {% if sale.cantidad != 0 %}
                                     <td>
                                         <a href="{% url 'ventas' sale.id %}" title="Detalles de la venta"
