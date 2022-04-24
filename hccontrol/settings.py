@@ -24,12 +24,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = 'django-insecure--6sx1sxwc_t5(a46p!=1umie$&z3!g=j+)(0egslf_ja%*u$$i'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = 'False'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'hccontrolp.com', 'www.hccontrolp.com', 'http://hccontrolp.com/']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -80,12 +80,12 @@ WSGI_APPLICATION = 'hccontrol.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('POSTGRESQL_NAME'),
-        'USER': env('POSTGRESQL_USER'),
-        'PASSWORD': env('POSTGRESQL_PASS'),
-        'HOST': env('POSTGRESQL_HOST'),
-        'PORT': env('POSTGRESQL_PORT'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'hccontro_web',
+        'USER': 'hccontro_Web_app',
+        'PASSWORD': 'habanatrans 2016*',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
