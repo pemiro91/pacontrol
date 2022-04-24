@@ -15,19 +15,21 @@
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
                 <div class="col-md-5 float-right">
-                    <form method="post" >{% csrf_token %}
+                    <form method="post">{% csrf_token %}
                         <div class="form-group row">
-                            <div class="col-sm-4">
+                            <div class="col-sm-5">
                                 <label for="datepicker"></label>
-                                <input id="datepicker" class="form-control" name="fecha_init" placeholder="Fecha inicio"/>
+                                <input id="datepicker" required  class="form-control" name="fecha_init"
+                                       placeholder="Fecha inicio"/>
                             </div>
-                            <div class="col-sm-4">
+                            <div class="col-sm-5">
                                 <label for="datepicker2"></label>
-                                <input id="datepicker2" class="form-control" name="fecha_finish" placeholder="Fecha final"/>
+                                <input id="datepicker2" required class="form-control" name="fecha_finish"
+                                       placeholder="Fecha final"/>
                             </div>
-                            <div class="col-sm-4">
-                                <button type="submit" class=" btn btn-primary" title="Filtrar">
-                                     <i class="fas fa-filter"></i>
+                            <div class="col-sm-1" style="margin-top: 25px">
+                                <button type="submit" class=" btn btn-primary" style="background-color: #ff5700;" title="Filtrar">
+                                    <i class="fas fa-filter"></i>
                                 </button>
                             </div>
 
@@ -36,6 +38,7 @@
                 </div>
             </div>
 
+        {% if request.user.rol == False or request.user.is_superuser %}
             {% if sales_filter %}
                 <div class="table-responsive p-3">
                     <table class="table align-items-center table-flush table-hover" id="dataTableHover">
@@ -48,6 +51,7 @@
                             <th>Ganancia</th>
                             <th>Gastos</th>
                             <th>Gan. Real</th>
+                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </thead>
@@ -60,6 +64,7 @@
                             <th>Ganancia</th>
                             <th>Gastos</th>
                             <th>Gan. Real</th>
+                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </tfoot>
@@ -73,6 +78,8 @@
                                 <td>{{ sale.ganancia }}</td>
                                 <td>{{ sale.gasto }}</td>
                                 <td>{{ sale.ganancia_real }}</td>
+                                <td>{{ sale.establecimiento.nombre_establecimiento }}</td>
+
                                 {% if sale.cantidad != 0 %}
                                     <td>
                                         <a href="{% url 'ventas' sale.id %}" title="Detalles de la venta"
@@ -86,7 +93,7 @@
                         {% endfor %}
                         </tbody>
                     </table>
-            </div>
+                </div>
             {% else %}
                 <div class="table-responsive p-3">
                     <table class="table align-items-center table-flush table-hover" id="dataTableHover">
@@ -99,6 +106,7 @@
                             <th>Ganancia Bruta</th>
                             <th>Gastos</th>
                             <th>Ganancia Neta</th>
+                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </thead>
@@ -111,6 +119,7 @@
                             <th>Ganancia Bruta</th>
                             <th>Gastos</th>
                             <th>Ganancia Neta</th>
+                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </tfoot>
@@ -124,8 +133,9 @@
                                 <td>{{ sale.ganancia_bruta }}</td>
                                 <td>{{ sale.gasto }}</td>
                                 <td>{{ sale.ganancia_neta }}</td>
+                                <td>{{ sale.establecimiento.nombre_establecimiento }}</td>
                                 {% if sale.cantidad != 0 %}
-                                     <td>
+                                    <td>
                                         <a href="{% url 'ventas' sale.id %}" title="Detalles de la venta"
                                            style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
                                            class="btn btn-primary btn-sm">
@@ -137,8 +147,107 @@
                         {% endfor %}
                         </tbody>
                     </table>
-            </div>
+                </div>
             {% endif %}
+        {% else %}
+             {% if sales_filter_store %}
+                <div class="table-responsive p-3">
+                    <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                            <th>Venta Total</th>
+                            <th>Ganancia Bruta</th>
+                            <th>Gastos</th>
+                            <th>Ganancia Neta</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                            <th>Venta Total</th>
+                            <th>Ganancia Bruta</th>
+                            <th>Gastos</th>
+                            <th>Ganancia Neta</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        {% for sale in sales_filter_store %}
+                            <tr>
+                                <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
+                                <td>{{ sale.cantidad }}</td>
+                                <td>{{ sale.venta_total }}</td>
+                                <td>{{ sale.ganancia_bruta }}</td>
+                                <td>{{ sale.gasto }}</td>
+                                <td>{{ sale.ganancia_neta }}</td>
+                                {% if sale.cantidad != 0 %}
+                                    <td>
+                                        <a href="{% url 'ventas_slug' sale.id sale.establecimiento.slug %}" title="Detalles de la venta"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="table-responsive p-3">
+                    <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                            <th>Venta Total</th>
+                            <th>Ganancia Bruta</th>
+                            <th>Gastos</th>
+                            <th>Ganancia Neta</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Cantidad</th>
+                            <th>Venta Total</th>
+                            <th>Ganancia Bruta</th>
+                            <th>Gastos</th>
+                            <th>Ganancia Neta</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        {% for sale in sales_establecimiento %}
+                            <tr>
+                                <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
+                                <td>{{ sale.cantidad }}</td>
+                                <td>{{ sale.venta_total }}</td>
+                                <td>{{ sale.ganancia_bruta }}</td>
+                                <td>{{ sale.gasto }}</td>
+                                <td>{{ sale.ganancia_neta }}</td>
+                                {% if sale.cantidad != 0 %}
+                                    <td>
+                                        <a href="{% url 'ventas_slug' sale.id sale.establecimiento.slug %}" title="Detalles de la venta"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% endif %}
         </div>
     </div>
 
