@@ -4,7 +4,11 @@
     <h1 class="h3 mb-0 text-gray-800">Resumen ventas</h1>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'ventas_diaria_store' slug_store %}">Ventas diarias</a></li>
+        {% if request.user.rol == True %}
+            <li class="breadcrumb-item"><a href="{% url 'ventas_diaria_store' slug_store %}">Ventas diarias</a></li>
+        {% else %}
+            <li class="breadcrumb-item"><a href="{% url 'ventas_diaria' %}">Ventas diarias</a></li>
+        {% endif %}
         <li class="breadcrumb-item active" aria-current="page">Resumen ventas</li>
     </ol>
 {% endblock %}
@@ -24,7 +28,9 @@
                         <th>Cantidad</th>
                         <th>Tipo de pago</th>
                         <th>Venta</th>
-                        <th>Costo</th>
+                        {% if request.user.rol == False %}
+                            <th>Costo</th>
+                        {% endif %}
                         <th>Deudor</th>
                         <th>Fecha</th>
                     </tr>
@@ -35,7 +41,9 @@
                         <th>Cantidad</th>
                         <th>Tipo de pago</th>
                         <th>Venta</th>
-                        <th>Costo</th>
+                        {% if request.user.rol == False %}
+                            <th>Costo</th>
+                        {% endif %}
                         <th>Deudor</th>
                         <th>Fecha</th>
                     </tr>
@@ -43,7 +51,7 @@
                     <tbody>
                     {% for sale in sales %}
                         <tr>
-                            <td>{{ sale.producto.nombre_producto }}</td>
+                            <td>{{ sale.producto.producto.nombre_producto }}</td>
                             <td>{{ sale.cantidad }}</td>
                             {% if sale.tipo_pago == 'cash' %}
                                 <td>Efectivo</td>
@@ -54,8 +62,10 @@
                             {% elif sale.tipo_pago == 'home_account' %}
                                 <td>Cuenta casa</td>
                             {% endif %}
-                            <td>{{ sale.venta_total }}</td>
-                            <td>{{ sale.costo }}</td>
+                            <td>{{ sale.venta_total }} CUP</td>
+                            {% if request.user.rol == False %}
+                                <td>{{ sale.costo }} CUP</td>
+                            {% endif %}
                             {% if sale.deudor %}
                                 <td>{{ sale.deudor }}</td>
                             {% else %}
