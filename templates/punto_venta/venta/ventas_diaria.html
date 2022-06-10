@@ -51,7 +51,6 @@
                             <th>Ganancia</th>
                             <th>Gastos</th>
                             <th>Gan. Real</th>
-                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </thead>
@@ -64,7 +63,6 @@
                             <th>Ganancia</th>
                             <th>Gastos</th>
                             <th>Gan. Real</th>
-                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </tfoot>
@@ -73,22 +71,20 @@
                             <tr>
                                 <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
                                 <td>{{ sale.cantidad }}</td>
-                                <td>{{ sale.venta_total }}</td>
-                                <td>{{ sale.costo }}</td>
-                                <td>{{ sale.ganancia }}</td>
-                                <td>{{ sale.gasto }}</td>
-                                <td>{{ sale.ganancia_real }}</td>
-                                <td>{{ sale.establecimiento.nombre_establecimiento }}</td>
-
-                                {% if sale.cantidad != 0 %}
-                                    <td>
+                                <td>{{ sale.venta_total }} CUP</td>
+                                <td>{{ sale.costo }} CUP</td>
+                                <td>{{ sale.ganancia }} CUP</td>
+                                <td>{{ sale.gasto }} CUP</td>
+                                <td>{{ sale.ganancia_real }} CUP</td>
+                                <td>
+                                    {% if sale.cantidad != 0 %}
                                         <a href="{% url 'ventas' sale.id %}" title="Detalles de la venta"
                                            style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
                                            class="btn btn-primary btn-sm">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                    </td>
-                                {% endif %}
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -106,7 +102,6 @@
                             <th>Ganancia Bruta</th>
                             <th>Gastos</th>
                             <th>Ganancia Neta</th>
-                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </thead>
@@ -119,7 +114,6 @@
                             <th>Ganancia Bruta</th>
                             <th>Gastos</th>
                             <th>Ganancia Neta</th>
-                            <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
                         </tfoot>
@@ -128,21 +122,20 @@
                             <tr>
                                 <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
                                 <td>{{ sale.cantidad }}</td>
-                                <td>{{ sale.venta_total }}</td>
-                                <td>{{ sale.costo }}</td>
-                                <td>{{ sale.ganancia_bruta }}</td>
-                                <td>{{ sale.gasto }}</td>
-                                <td>{{ sale.ganancia_neta }}</td>
-                                <td>{{ sale.establecimiento.nombre_establecimiento }}</td>
-                                {% if sale.cantidad != 0 %}
-                                    <td>
+                                <td>{{ sale.venta_total }} CUP</td>
+                                <td>{{ sale.costo }} CUP</td>
+                                <td>{{ sale.ganancia_bruta }} CUP</td>
+                                <td>{{ sale.gasto }} CUP</td>
+                                <td>{{ sale.ganancia_neta }} CUP</td>
+                                <td>
+                                    {% if sale.cantidad != 0 %}
                                         <a href="{% url 'ventas' sale.id %}" title="Detalles de la venta"
                                            style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
                                            class="btn btn-primary btn-sm">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                    </td>
-                                {% endif %}
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -184,15 +177,15 @@
                                 <td>{{ sale.ganancia_bruta }}</td>
                                 <td>{{ sale.gasto }}</td>
                                 <td>{{ sale.ganancia_neta }}</td>
-                                {% if sale.cantidad != 0 %}
-                                    <td>
+                                <td>
+                                    {% if sale.cantidad != 0 %}
                                         <a href="{% url 'ventas_slug' sale.id sale.establecimiento.slug %}" title="Detalles de la venta"
                                            style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
                                            class="btn btn-primary btn-sm">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                    </td>
-                                {% endif %}
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -228,19 +221,19 @@
                             <tr>
                                 <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
                                 <td>{{ sale.cantidad }}</td>
-                                <td>{{ sale.venta_total }}</td>
-                                <td>{{ sale.ganancia_bruta }}</td>
-                                <td>{{ sale.gasto }}</td>
-                                <td>{{ sale.ganancia_neta }}</td>
-                                {% if sale.cantidad != 0 %}
-                                    <td>
+                                <td>{{ sale.venta_total }} CUP</td>
+                                <td>{{ sale.ganancia_bruta }} CUP</td>
+                                <td>{{ sale.gasto }} CUP</td>
+                                <td>{{ sale.ganancia_neta }} CUP</td>
+                                <td>
+                                    {% if sale.cantidad != 0 %}
                                         <a href="{% url 'ventas_slug' sale.id sale.establecimiento.slug %}" title="Detalles de la venta"
                                            style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
                                            class="btn btn-primary btn-sm">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                    </td>
-                                {% endif %}
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>

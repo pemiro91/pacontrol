@@ -1,0 +1,148 @@
+{% extends  'base_admin.html' %}
+{% load static %}
+{% block submenu-superior %}
+    <h1 class="h3 mb-0 text-gray-800">Entradas</h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Entradas</li>
+    </ol>
+{% endblock %}
+{% block content %}
+
+    <!-- DataTable with Hover -->
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
+                <div>
+                    <a href="{% url 'entradas' %}" type="button" class="btn btn-primary mb-1" style="background-color: #ff5700;"><i
+                        class="fas fa-puzzle-piece"></i> Entradas-Productos</a>
+                </div>
+            </div>
+            <div class="table-responsive p-3">
+                <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>Nombre producto</th>
+                            <th>Cantidad incrementada</th>
+                            <th>Costo</th>
+                            <th>Monto total</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </thead>
+                        <tfoot>
+                        <tr>
+                            <th>Nombre producto</th>
+                            <th>Cantidad incrementada</th>
+                            <th>Costo</th>
+                            <th>Monto total</th>
+                            <th>Operaciones</th>
+                        </tr>
+                        </tfoot>
+                        <tbody>
+                        {% for entrada in increases_all %}
+                            <tr>
+                                <td>{{ entrada.material.nombre_material }}</td>
+                                <td>{{ entrada.cantidad_material_entrada }}</td>
+                                <td>{{ entrada.material.costo }}</td>
+                                <td>{% widthratio entrada.material.costo 1 entrada.cantidad_material_entrada %}</td>
+                                <td>
+                                    <a href="#" type="button" data-toggle="modal"
+                                       class="btn btn-primary btn-sm waves-black"
+                                       data-id="{{ entrada.id }}" data-count="{{ entrada.cantidad_material_entrada }}"
+                                       data-form="{% url 'edit_entrada_material' entrada.id %}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Editar cantidad" data-target="#confirm-entrada">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" data-href="{% url 'delete_entrada_material' entrada.id %}" data-toggle="modal"
+                                       class="btn btn-primary btn-sm" data-id="{{ entrada.id }}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Eliminar entrada"
+                                       data-target="#confirm-delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirm-entrada" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modifique la cantidad a incrementar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <h6 id="modal_body"></h6>
+                    <form id="edit_entrada_form" action="" method="post">{% csrf_token %}
+                      <div class="form-group">
+                        <label for="super_entrada" class="col-form-label">Cantidad:</label>
+                        <input type="number" name="count_entrada" class="form-control" id="super_entrada" required>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                        <button id="saveModalButton" class="btn btn-secondary btn-ok" style="background-color: #ff5700;">Modificar</button>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Desea eliminar la entrada?</h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                    <a class="btn btn-primary btn-ok" style="background-color: #ff5700;">Eliminar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block js %}
+    <!-- Page level plugins -->
+    <script src="{% static 'control_panel/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'control_panel/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable(); // ID From dataTable
+            $('#dataTableHover').DataTable(); // ID From dataTable with Hover
+        });
+    </script>
+    <script>
+        $('#confirm-delete').on('show.bs.modal', function (e) {
+            $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+        });
+    </script>
+    <script>
+        $(document).on('click','.waves-black',function(){
+            document.forms["edit_entrada_form"]['super_entrada'].value = $(this).data('count');
+        });
+    </script>
+    <script>
+        $(document).on('click','.waves-black',function(){
+            const id = $(this).data('id');
+            $("#edit_entrada_form").attr("action", "entradas_material/edit_entrada/" + id);
+        });
+    </script>
+
+{% endblock %}

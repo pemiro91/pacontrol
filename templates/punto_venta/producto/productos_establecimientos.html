@@ -1,7 +1,7 @@
 {% extends  'base_admin.html' %}
 {% load static %}
 {% block submenu-superior %}
-    <h1 class="h3 mb-0 text-gray-800">Productos</h1>
+    <h1 class="h3 mb-0 text-gray-800">Productos - {{ establecimiento.nombre_establecimiento }}</h1>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
         <li class="breadcrumb-item active" aria-current="page">Productos</li>
@@ -14,7 +14,6 @@
         <div class="card mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Tablero de Productos</h6>
-
             </div>
             <div class="table-responsive p-3">
                 <table class="table align-items-center table-flush table-hover" id="dataTableHover">
@@ -22,6 +21,9 @@
                     <tr>
                         <th>Nombre producto</th>
                         <th>Cantidad existente</th>
+                        {% if request.user.rol == False %}
+                            <th>Costo</th>
+                        {% endif %}
                         <th>Precio venta</th>
                         <th>Establecimiento</th>
                         <th>Operaciones</th>
@@ -31,41 +33,61 @@
                     <tr>
                         <th>Nombre producto</th>
                         <th>Cantidad existente</th>
+                        {% if request.user.rol == False %}
+                            <th>Costo</th>
+                        {% endif %}
                         <th>Precio venta</th>
                         <th>Establecimiento</th>
                         <th>Operaciones</th>
                     </tr>
                     </tfoot>
                     <tbody>
-                    {% for producto in productos %}
+                    {% for producto_es in productos %}
                         <tr>
-                            <td>{{ producto.nombre_producto }}</td>
-                            <td>{{ producto.cantidad_existente }}</td>
-                            <td>{{ producto.precio_venta }}</td>
-                            <td>{{ producto.establecimiento }}</td>
+                            <td>{{ producto_es.producto.nombre_producto }}</td>
+                            <td>{{ producto_es.cantidad_existente }}</td>
+                            {% if request.user.rol == False %}
+                                <td>{% widthratio producto_es.producto.costo 1 tasa.tasa %} CUP</td>
+                            {% endif %}
+                            <td>{{ producto_es.precio_venta }} CUP</td>
+                            <td>{{ producto_es.establecimiento.nombre_establecimiento }}</td>
                             <td width="20%">
-                                <a href="#" data-url="{% url 'add_incrementar' producto.id %}" data-toggle="modal"
-                                   class="btn btn-primary btn-sm waves-black" data-id="{{ producto.id }}"
+                                {% if request.user.rol == False %}
+                                    <a href="#" data-url="{% url 'edit_product_establecimiento' producto_es.id %}" data-toggle="modal"
+                                       class="btn btn-primary btn-sm waves-black"
+                                       data-id="{{ producto_es.id }}"
+                                       data-precio_venta="{{ producto_es.precio_venta }}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Modificar precio venta"
+                                       data-target="#confirm-modify">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                {% endif %}
+                                <a href="#" data-url="{% url 'add_incrementar' producto_es.id %}" data-toggle="modal"
+                                   class="btn btn-primary btn-sm waves-black" data-id="{{ producto_es.id }}"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
                                    title="Incrementar producto"
                                    data-target="#confirm-incrementar">
                                     <i class="fas fa-hand-point-up"></i>
                                 </a>
-                                <a href="#" data-url="{% url 'add_merma' producto.id %}" data-toggle="modal"
-                                   class="btn btn-primary btn-sm waves-black" data-id="{{ producto.id }}"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Mermar producto"
-                                   data-target="#confirm-merma">
-                                    <i class="fas fa-hand-point-down"></i>
-                                </a>
+                                {% if request.user.rol == False %}
+                                    <a href="#" data-url="{% url 'add_merma' producto_es.id %}" data-toggle="modal"
+                                       class="btn btn-primary btn-sm waves-black" data-id="{{ producto.id }}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Mermar producto"
+                                       data-target="#confirm-merma">
+                                        <i class="fas fa-hand-point-down"></i>
+                                    </a>
+                                {% endif %}
                                 <a href="#" data-toggle="modal"
-                                   class="btn btn-primary btn-sm waves-pay" data-id="{{ producto.id }}"
+                                   class="btn btn-primary btn-sm waves-pay" data-id="{{ producto_es.id }}"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700);"
                                    title="Vender producto"
                                    data-target="#confirm-buy">
                                     <i class="fas fa-money-bill"></i>
                                 </a>
-                                <a href="{% url 'traslado' producto.slug %}" title="Trasladar Producto"
+                                <a href="{% url 'traslado' producto_es.establecimiento.slug producto_es.producto.slug %}"
+                                   title="Trasladar Producto"
                                    style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
                                    class="btn btn-primary btn-sm">
                                     <i class="fas fa-truck"></i>
@@ -179,6 +201,32 @@
 
         </div>
     </div>
+    <!-- Modal Modificar -->
+    <div class="modal fade" id="confirm-modify" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modifique el precio de venta</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit_modify_form" action="" method="post">{% csrf_token %}
+                      <div class="form-group">
+                        <label for="precio_venta" class="col-form-label">Precio:</label>
+                        <input type="number" name="precio_venta" class="form-control" id="precio_venta">
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-secondary btn-ok" style="background-color: #ff5700;">Modificar</button>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
 {% block js %}
@@ -198,6 +246,20 @@
             var id = $(this).data('id');
             console.log(id)
             $("#add_incrementar_form").attr("action", "add_incrementar/" + id);
+        });
+    </script>
+    <script>
+        $(document).on('click','.waves-black',function(){
+            document.forms["edit_modify_form"]['precio_venta'].value = $(this).data('precio_venta');
+        });
+    </script>
+    <script>
+        $(document).on('click','.waves-black',function(){
+            var id = $(this).data('id');
+            var precio_venta = $(this).data('precio_venta');
+            console.log(id)
+            console.log(precio_venta)
+            $("#edit_modify_form").attr("action", "edit_product_establecimiento/" + id);
         });
     </script>
     <script>
@@ -230,31 +292,6 @@
             console.log(element)
             $("#data_buy_form").attr("action", "buy/" + id);
         });
-    </script>
-
-    <script>
-        function submitFunction(i) {
-            const conceptoVar = $('#concepto');
-            const gastoAmount = $('#gasto_amount');
-            if (!conceptoVar.val()){
-               $("#shieldRequired").show();
-               i.preventDefault();
-            }else if (!gastoAmount.val()){
-               $("#shieldRequired2").show();
-               i.preventDefault();
-            }
-            else{
-               $("#shieldRequired").hide();
-               $("#shieldRequired2").hide();
-               if (gastoAmount.val() === 0){
-                   $("#shieldAmount").show();
-                   i.preventDefault();
-               }else {
-                   $("#data_gastos_form").attr("action", "productos/add_spending");
-               }
-            }
-            document.forms["data_gastos_form"].submit()
-        }
     </script>
 
 {% endblock %}

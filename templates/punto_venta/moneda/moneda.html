@@ -1,0 +1,204 @@
+{% extends  'base_admin.html' %}
+{% load static %}
+{% block submenu-superior %}
+    <h1 class="h3 mb-0 text-gray-800">Moneda</h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
+        <li class="breadcrumb-item"><a href="">Moneda</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Resumen ventas</li>
+    </ol>
+{% endblock %}
+{% block content %}
+
+    <!-- DataTable with Hover -->
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
+                <div>
+                    <a href="#add-coin" data-toggle="modal"
+                       class="btn btn-primary mb-1"
+                       title="Agregar categoría de producto"
+                       type="button"
+                       style="background-color: #ff5700;"
+                       data-target="#add-coin">
+                        <i class="fas fa-plus"></i>
+                        Agregar
+                    </a>
+                </div>
+            </div>
+            <div class="table-responsive p-3">
+                <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                    <thead class="thead-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Moneda</th>
+                        <th>Tasa</th>
+                        <th>Operaciones</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th>#</th>
+                        <th>Moneda</th>
+                        <th>Tasa</th>
+                        <th>Operaciones</th>
+                    </tr>
+                    </tfoot>
+                    <tbody>
+                    {% for coin in coins %}
+                        <tr>
+                            <td>{{ coin.id }}</td>
+                            <td>{{ coin.moneda }}</td>
+                            <td>{{ coin.tasa }} CUP</td>
+                            <td>
+                                <a href="#" type="button" data-toggle="modal"
+                                   class="btn btn-primary btn-sm waves-black"
+                                   data-id="{{ coin.id }}" data-nombre_moneda="{{ coin.moneda }}"
+                                   data-tasa="{{ coin.tasa }}"
+                                   data-slug="{{ coin.slug }}"
+                                   data-form="{% url 'editar_moneda' coin.slug %}"
+                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                   title="Editar moneda" data-target="#edit-coin">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" data-href="{% url 'eliminar_moneda' coin.slug %}" data-toggle="modal"
+                                   class="btn btn-primary btn-sm" data-slug="{{ coin.slug }}"
+                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                   title="Eliminar entrada"
+                                   data-target="#confirm-delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="add-coin" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form method="POST" id="contact-form" enctype="multipart/form-data" action="{% url 'agregar_moneda' %}">{% csrf_token %}
+                    <div class="modal-header">
+                        <h4 class="modal-title">Agregar moneda</h4>
+                        <button type="button" class="close " data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <label for="exampleFormControlInput1" class="col-sm-3 col-form-label">Nombre</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="exampleFormControlInput1" required
+                                       placeholder="Escriba la moneda" name="nombre_moneda">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="exampleFormControlTasa" class="col-sm-3 col-form-label">Descripción</label>
+                            <div class="col-sm-9">
+                                <input type="number" class="form-control" id="exampleFormControlTasa" required
+                                       placeholder="Escriba la tasa en cup" name="tasa">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="contactSubmit" class="btn btn-primary"
+                                style="background: linear-gradient(to bottom right, #fc4212, #ff5700); ">Agregar</button>
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Desea eliminar la moneda?</h5>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                    <a class="btn btn-primary btn-ok" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); ">Eliminar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="edit-coin" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modifique la tipo de moneda y la tasa</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <h6 id="modal_body"></h6>
+                    <form id="edit_coin_form" action="" method="post">{% csrf_token %}
+                        <div class="form-group row">
+                            <label for="nombre_moneda" class="col-sm-3 col-form-label">Moneda</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="nombre_moneda" required
+                                       placeholder="Escriba el tipo de moneda" name="nombre_moneda">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="tasa" class="col-sm-3 col-form-label">Tasa</label>
+                            <div class="col-sm-9">
+                                <input type="number" class="form-control" id="tasa" required
+                                       placeholder="Escriba la tasa de cambio" name="tasa">
+                            </div>
+                        </div>
+
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                        <button id="saveModalButton" class="btn btn-secondary btn-ok"
+                                style="background: linear-gradient(to bottom right, #fc4212, #ff5700);" >Modificar</button>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block js %}
+    <!-- Page level plugins -->
+    <script src="{% static 'control_panel/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'control_panel/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable(); // ID From dataTable
+            $('#dataTableHover').DataTable(); // ID From dataTable with Hover
+        });
+    </script>
+    <script>
+        $('#confirm-delete').on('show.bs.modal', function (e) {
+            $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+        });
+    </script>
+
+    <script>
+        $(document).on('click','.waves-black',function(){
+            document.forms["edit_coin_form"]['nombre_moneda'].value = $(this).data('nombre_moneda');
+            document.forms["edit_coin_form"]['tasa'].value = $(this).data('tasa');
+        });
+    </script>
+    <script>
+        $(document).on('click','.waves-black',function(){
+            const slug = $(this).data('slug');
+            $("#edit_coin_form").attr("action", "monedas/editar_moneda/" + slug);
+        });
+    </script>
+{% endblock %}

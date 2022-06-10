@@ -110,13 +110,14 @@
                         <div class="bg-white py-2 collapse-inner rounded">
                             <h6 class="collapse-header">Operaciones</h6>
                             {% if request.user.rol == False or request.user.is_superuser %}
-                                <a class="collapse-item" href="{% url 'establecimientos' %}"><i class="fas fa-fw fa-home"></i> Establecimientos</a>
                                 <a class="collapse-item" href="{% url 'categories_productos' %}"><i class="fas fa-fw fa-chalkboard"></i> Categorías</a>
-                                <a class="collapse-item" href=""><i class="fas fa-fw fa-coins"></i> Tipo moneda</a>
+                                <a class="collapse-item" href="{% url 'establecimientos' %}"><i class="fas fa-fw fa-home"></i> Establecimientos</a>
+                                <a class="collapse-item" href="{% url 'monedas' %}"><i class="fas fa-fw fa-coins"></i> Tipo moneda</a>
+                                <a class="collapse-item" href="{% url 'ficha_tecnica' %}"><i class="fas fa-fw fa-book"></i> Fichas Técnicas</a>
                             {% endif %}
                             {% if request.user.rol == True %}
                                 {% if puntos_venta.first %}
-                                    <a class="collapse-item" href="{% url 'mermas_store' puntos_venta.first.slug %}"><i class="fas fa-hand-point-down"></i> Mermas</a>
+{#                                    <a class="collapse-item" href="{% url 'mermas_store' puntos_venta.first.slug %}"><i class="fas fa-hand-point-down"></i> Mermas</a>#}
                                     <a class="collapse-item" href="{% url 'entradas_store' puntos_venta.first.slug %}"><i class="fas fa-hand-point-up"></i> Entradas</a>
                                     <a class="collapse-item" href="{% url 'ventas_diaria_store' puntos_venta.first.slug %}"><i class="fas fa-money-bill"></i> Resumen ventas</a>
                                     <a class="collapse-item" href="{% url 'expenses_store' puntos_venta.first.slug %}"><i class="fas fa-sort-amount-down"></i> Gastos</a>

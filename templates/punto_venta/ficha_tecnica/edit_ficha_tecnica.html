@@ -1,0 +1,217 @@
+{% extends  'base_admin.html' %}
+{% load static %}
+{% block submenu-superior %}
+    <h1 class="h3 mb-0 text-gray-800"><a href="{% url 'ficha_tecnica' %}">
+        <i class="fas fa-arrow-alt-circle-left"></i> Materiales - {{ ficha_nombre.nombre_ficha }}</a></h1>
+    <ol class="breadcrumb">
+
+    </ol>
+{% endblock %}
+{% block content %}
+
+    <!-- DataTable with Hover -->
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
+                <a href="#confirm-gasto" type="button" data-toggle="modal"
+                   class="open-AddBookDialog btn btn-primary btn-sm"
+                   data-id="{{ ficha_gasto.id }}"
+                   data-ficha="{{ ficha }}"
+                   data-gasto_directo="{{ ficha_gasto.gasto_directo }}" data-gasto_indirecto="{{ ficha_gasto.gasto_indirecto }}"
+                   data-gasto_impuesto="{{ ficha_gasto.impuesto }}"
+                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " title="Cantidad de material"> Siguiente
+                </a>
+            </div>
+            <div class="table-responsive p-3">
+                <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                    <thead class="thead-light">
+                    <tr>
+                        <th>Nombre material</th>
+                        <th>Cantidad</th>
+                        <th>Unidad Medida</th>
+                        <th>Costo</th>
+                        <th>Operaciones</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th>Nombre material</th>
+                        <th>Cantidad</th>
+                        <th>Unidad Medida</th>
+                        <th>Costo</th>
+                        <th>Operaciones</th>
+                    </tr>
+                    </tfoot>
+                    <tbody>
+                    {% for material in fichas %}
+                        <tr>
+                            <td>{{ material.material.nombre_material }}</td>
+                            <td>{{ material.cantidad_material }}</td>
+                            <td>{{ material.material.unidad_medida }}</td>
+                            <td>{{ material.material.costo }} USD</td>
+                            <td width="20%">
+                                <a href="#" data-url="{% url 'edit_count_material' ficha material.material.slug %}"
+                                   data-toggle="modal"
+                                   class="btn btn-primary btn-sm waves-black" data-ficha="{{ ficha }}"
+                                   data-count="{{ material.cantidad_material }}"
+                                   data-slug="{{ material.material.slug }}" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " title="Cantidad de material"
+                                   data-target="#confirm-count"> <i class="fas fa-edit"></i> Modificar
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal Merma -->
+    <div class="modal fade" id="confirm-count" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modifique la cantidad del producto</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <h6 id="modal_body"></h6>
+                    <form id="edit_material_form" action="" method="post">{% csrf_token %}
+                      <div class="form-group">
+                        <label for="super_count" class="col-form-label">Cantidad:</label>
+                        <input type="number" name="count_material" class="form-control" id="super_count" required step=".01">
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        <button id="saveModalButton" class="btn btn-secondary btn-ok" style="background-color: #ff5700;" >Modificar</button>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Vender-->
+    <div class="modal fade" id="confirm-gasto" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Gastos (USD)</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+{#                        <h4 class="font-weight-bold text-primary text-center">Total: {{ total_pagar }} CUP</h4>#}
+                        <form id="data_gastos_form" method="post" action="" class="needs-validation" novalidate>{% csrf_token %}
+                            <div id="monto_id" style="display:none"  class="form-group has-error">
+                                <label for="ficha_var" class="col-form-label"></label>
+                                <input type="text" name="ficha_var" class="form-control required" id="ficha_var"  >
+                            </div>
+                            <div id="gasto_directo_oficial" class="form-group has-error">
+                                <label for="gasto_directo_var" class="col-form-label">Gasto directo: {{ ficha_gasto.gasto_directo }}</label>
+                                <input type="number" name="gasto_directo_var" value=""
+                                       class="form-control" id="gasto_directo_var" step=".01">
+                                <div id="shieldRequired" class="invalid-feedback">El campo no debe estar vacio.</div>
+                            </div>
+                          <div id="gasto_indirecto_oficial" class="form-group has-error">
+                            <label for="gasto_indirecto_var" class="col-form-label">Gasto Indirecto: {{ ficha_gasto.gasto_indirecto }}</label>
+                            <input type="number" name="gasto_indirecto_var" value=""
+                                   class="form-control required" id="gasto_indirecto_var" step=".01">
+                            <div id="shieldRequired1" class="invalid-feedback">El campo no debe estar vacio.</div>
+                          </div>
+                            <div id="impuesto_oficial" class="form-group has-error">
+                              <label for="impuesto_var" class="col-form-label">Impuesto: {{ ficha_gasto.impuesto }}</label>
+                              <input type="number" name="impuesto" class="form-control" id="impuesto_var"
+                                     value="" required step=".01">
+                              <div id="shieldRequired2" class="invalid-feedback">El campo no debe estar vacio.</div>
+                            </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                            <input type="button"  class="btn btn-primary btn-ok" id="pagar3"
+                                   style="background-color: #ff5700;" value="Finalizar" onclick="submitFunctionEncargo(0)"/>
+                          </div>
+                        </form>
+                    </div>
+                </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+{% block js %}
+    <!-- Page level plugins -->
+    <script src="{% static 'control_panel/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'control_panel/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable(); // ID From dataTable
+            $('#dataTableHover').DataTable(); // ID From dataTable with Hover
+        });
+    </script>
+
+    <script>
+        $(document).on('click','.waves-black',function(){
+            document.forms["edit_material_form"]['super_count'].value = $(this).data('count');
+        });
+    </script>
+
+    <script>
+        $(document).on('click','.open-AddBookDialog',function(){
+            document.forms["data_gastos_form"]['ficha_var'].value = $(this).data('ficha');
+            const myGastoDirecto = $(this).data('gasto_directo');
+            const myGastoInDirecto = $(this).data('gasto_indirecto');
+            const myGastoImpuesto = $(this).data('gasto_impuesto');
+            $(".modal-body #gasto_directo_var").val(myGastoDirecto);
+            $(".modal-body #gasto_indirecto_var").val(myGastoInDirecto);
+            $(".modal-body #impuesto_var").val(myGastoImpuesto);
+        });
+    </script>
+
+    <script>
+        $(document).on('click','.waves-black',function(){
+            const ficha = $(this).data('ficha');
+            const slug = $(this).data('slug');
+            console.log(ficha)
+            console.log(slug)
+            $("#edit_material_form").attr("action", "edit_count_material/"+ ficha +"/" + slug);
+        });
+    </script>
+
+    <script>
+        function submitFunctionEncargo(i) {
+            const gastoDirectoVar = $('#gasto_directo_var');
+            const gastoIndirectoVar = $('#gasto_indirecto_var');
+            const impuestoVar = $('#impuesto_var');
+            const ficha_var = $('#ficha_var');
+            if (!gastoDirectoVar.val()){
+               $("#shieldRequired").show();
+               i.preventDefault();
+            }else if (!gastoIndirectoVar.val()){
+               $("#shieldRequired1").show();
+               i.preventDefault();
+            }else if (!impuestoVar.val()){
+               $("#shieldRequired2").show();
+               i.preventDefault();
+            }
+            else{
+               $("#shieldRequired").hide();
+               $("#shieldRequired1").hide();
+               $("#shieldRequired2").hide();
+               $("#data_gastos_form").attr("action", "edit_gasto_material/" + ficha_var.val());
+            }
+            document.forms["data_gastos_form"].submit()
+        }
+    </script>
+{% endblock %}

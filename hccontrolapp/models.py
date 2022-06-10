@@ -1,9 +1,9 @@
 import datetime
+import os
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import date
 from django.utils.text import slugify
-
 
 # Create your models here.
 
@@ -19,6 +19,7 @@ UM = (
     ('Unidad', 'unidad')
 )
 
+
 # CHOICES_ROL = (
 #     ('dependiente', 'Dependiente'),
 #     ('administrador', 'Administrador')
@@ -31,7 +32,6 @@ UM = (
 
 
 def unique_slugify(instance, value, slug_field_name='slug', queryset=None, slug_separator='-'):
-
     from django.template.defaultfilters import slugify
     slug_field = instance._meta.get_field(slug_field_name)
 
@@ -110,10 +110,10 @@ class Categoria_Producto(models.Model):
 
 
 class Establecimiento(models.Model):
-    nombre_establecimiento = models.CharField(max_length=50)
-    descripcion = models.TextField(max_length=50, name='descripcion')
-    user = models.ManyToManyField(User)
-    slug = models.SlugField(unique=True)
+    nombre_establecimiento = models.CharField(max_length=50, default='Almacen')
+    descripcion = models.TextField(max_length=50, default='Almacen de productos')
+    user = models.ManyToManyField(User, blank=True)
+    slug = models.SlugField(unique=True, default='almacen')
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.nombre_establecimiento)
@@ -122,35 +122,48 @@ class Establecimiento(models.Model):
     def __str__(self):
         return self.nombre_establecimiento
 
-    def get_absolute_url(self):
-        return reverse("productos_establecimientos", kwargs={"slug": self.slug})
-
 
 class Producto(models.Model):
     imagen = models.ImageField(upload_to='producto/', null=True, blank=True)
     nombre_producto = models.CharField(max_length=100, name='nombre_producto')
     cantidad_existente = models.IntegerField()
     costo = models.FloatField(max_length=100, name='costo')
-    precio_venta = models.FloatField(max_length=100, name='precio_venta')
-    categoria_producto = models.ForeignKey(Categoria_Producto, on_delete=models.CASCADE)
-    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+    categoria_producto = models.ForeignKey(Categoria_Producto, on_delete=models.CASCADE, null=True, blank=True)
     fecha = models.DateTimeField(null=False, blank=False, auto_now_add=True)
-    slug = models.SlugField(null=True)
+    slug = models.SlugField(null=True, unique=True)
 
     def save(self, *args, **kwargs):
-        slug_str = "%s %s" % (self.nombre_producto, self.establecimiento.nombre_establecimiento)
+        slug_str = "%s" % self.nombre_producto
         unique_slugify(self, slug_str)
         super(Producto, self).save(**kwargs)
 
+    def delete(self, *args, **kwargs):
+        if os.path.isfile(self.imagen.path):
+            os.remove(self.imagen.path)
+
+        super(Producto, self).delete(*args, **kwargs)
+
     def __str__(self):
         return self.nombre_producto
+
+
+class ProductoEstablecimiento(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, )
+    cantidad_existente = models.IntegerField()
+    precio_venta = models.FloatField(max_length=100, name='precio_venta')
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+
+    def __str__(self):
+        return self.producto.nombre_producto
 
 
 class Traslado(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE, related_name='establecimiento')
     establecimiento_padre = models.ForeignKey(Establecimiento,
-                                              on_delete=models.CASCADE, related_name='establecimiento_padre')
+                                              on_delete=models.CASCADE, related_name='establecimiento_padre', null=True,
+                                              blank=True)
     cantidad_trasladar = models.IntegerField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     fecha = models.DateTimeField(null=False, blank=False, auto_now_add=True)
@@ -164,7 +177,7 @@ class Gastos(models.Model):
     concepto = models.CharField(max_length=200)
     monto_gasto = models.FloatField(max_length=100)
     fecha_gasto = models.DateTimeField(datetime.datetime.now())
-    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE, null=True, blank=True)
 
     def str(self):
         return str(self.concepto)
@@ -176,16 +189,29 @@ class Gastos(models.Model):
                                                                       fecha_gasto__year=date.today().year)])
 
 
+class Moneda(models.Model):
+    moneda = models.CharField(max_length=50, name='moneda')
+    tasa = models.IntegerField()
+    slug = models.SlugField(unique=True, null=True)
+
+    def str(self):
+        return str(self.moneda)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.moneda)
+        super(Moneda, self).save(*args, **kwargs)
+
+
 class Venta(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, name='usuario')
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, name='producto')
+    producto = models.ForeignKey(ProductoEstablecimiento, on_delete=models.CASCADE, name='producto')
     cantidad = models.IntegerField()
     tipo_pago = models.CharField(max_length=50, choices=TIPO_PAGO, name='tipo_pago')
     venta_total = models.FloatField(max_length=100)
     costo = models.FloatField(max_length=100, null=True, blank=True)
     deudor = models.CharField(max_length=50, name='deudor', null=True, blank=True)
     fecha_venta = models.DateTimeField(datetime.datetime.now())
-    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE, null=True, blank=True)
     slug = models.SlugField(unique=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -193,7 +219,7 @@ class Venta(models.Model):
         super(Venta, self).save(*args, **kwargs)
 
     def str(self):
-        return str(self.producto)
+        return str(self.producto.producto.nombre_producto)
 
     @classmethod
     def get_total_count(cls):
@@ -212,19 +238,22 @@ class Venta(models.Model):
 
     @classmethod
     def get_total_sales_costo(cls):
+        tasa = Moneda.objects.all()[0]
         return sum([
-            sale.cantidad * sale.producto.costo for sale in cls.objects.filter(fecha_venta__day=date.today().day,
-                                                                               fecha_venta__month=date.today().month,
-                                                                               fecha_venta__year=date.today().year)
+            sale.cantidad * (sale.producto.producto.costo * tasa.tasa) for sale in
+            cls.objects.filter(fecha_venta__day=date.today().day,
+                               fecha_venta__month=date.today().month,
+                               fecha_venta__year=date.today().year)
         ])
 
     @classmethod
     def get_total_sales_home(cls):
         return sum([
-            sale.cantidad * sale.producto.precio_venta for sale in cls.objects.filter(tipo_pago="home_account",
-                                                                                      fecha_venta__day=date.today().day,
-                                                                                      fecha_venta__month=date.today().month,
-                                                                                      fecha_venta__year=date.today().year)
+            sale.cantidad * (sale.producto.producto.costo * tasa.tasa) for sale in
+            cls.objects.filter(tipo_pago="home_account",
+                               fecha_venta__day=date.today().day,
+                               fecha_venta__month=date.today().month,
+                               fecha_venta__year=date.today().year)
         ])
 
 
@@ -250,7 +279,7 @@ class Venta_Diaria(models.Model):
 class Entrada(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, name='producto')
     cantidad_producto_entrada = models.IntegerField()
-    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE, null=True, blank=True)
     fecha = models.DateTimeField(datetime.datetime.now())
 
     def str(self):
@@ -260,7 +289,7 @@ class Entrada(models.Model):
 class Merma(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, name='producto')
     cantidad_producto_merma = models.IntegerField()
-    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE, null=True, blank=True)
     fecha = models.DateTimeField(datetime.datetime.now())
 
     def str(self):
@@ -268,7 +297,7 @@ class Merma(models.Model):
 
     @classmethod
     def get_total_merma(cls):
-        return sum([merma.cantidad_producto_merma * merma.producto.precio_venta
+        return sum([merma.cantidad_producto_merma * merma.producto.costo
                     for merma in cls.objects.filter(fecha__day=date.today().day,
                                                     fecha__month=date.today().month,
                                                     fecha__year=date.today().year)])
@@ -277,15 +306,21 @@ class Merma(models.Model):
 class Material(models.Model):
     imagen = models.ImageField(upload_to='material/', null=True, blank=True)
     nombre_material = models.CharField(max_length=100, name='nombre_material')
-    cantidad = models.IntegerField()
+    cantidad = models.FloatField()
     costo = models.FloatField(max_length=100, name='costo')
-    unidad_medida = models.CharField(max_length=50, choices=UM, name='unidad_medida')
-    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE)
+    unidad_medida = models.CharField(max_length=50, name='unidad_medida')
     slug = models.SlugField(unique=True, null=True)
+    fecha = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.nombre_material)
         super(Material, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if os.path.isfile(self.imagen.path):
+            os.remove(self.imagen.path)
+
+        super(Material, self).delete(*args, **kwargs)
 
 
 class Entrada_Material(models.Model):
@@ -311,3 +346,47 @@ class Merma_Material(models.Model):
                     for merma in cls.objects.filter(fecha__day=date.today().day,
                                                     fecha__month=date.today().month,
                                                     fecha__year=date.today().year)])
+
+
+class Ficha_Tecnica_Nombre(models.Model):
+    nombre_ficha = models.CharField(max_length=50)
+    slug = models.SlugField(null=True, unique=True)
+
+    def save(self, *args, **kwargs):
+        slug_str = "%s" % self.nombre_ficha
+        unique_slugify(self, slug_str)
+        super(Ficha_Tecnica_Nombre, self).save(**kwargs)
+
+    def str(self):
+        return str(self.nombre_ficha)
+
+
+class Ficha_Tecnica_Material(models.Model):
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, name='material')
+    cantidad_material = models.FloatField()
+    nombre_ficha = models.ForeignKey(Ficha_Tecnica_Nombre, on_delete=models.CASCADE, name='nombre_ficha')
+
+    def str(self):
+        return str(self.material.nombre_material)
+
+
+class Ficha_Tecnica_Gastos(models.Model):
+    gasto_directo = models.FloatField()
+    gasto_indirecto = models.FloatField()
+    impuesto = models.FloatField()
+    nombre_ficha = models.ForeignKey(Ficha_Tecnica_Nombre, on_delete=models.CASCADE, name='nombre_ficha')
+
+    def str(self):
+        return str(self.nombre_ficha)
+
+
+class Ficha_Tecnica(models.Model):
+    nombre_ficha = models.ForeignKey(Ficha_Tecnica_Nombre, on_delete=models.CASCADE, name='nombre_ficha')
+    materiales = models.ManyToManyField(Ficha_Tecnica_Material, blank=True)
+    ficha_gasto = models.ForeignKey(Ficha_Tecnica_Gastos, on_delete=models.CASCADE, name='ficha_gasto')
+
+    def str(self):
+        return str(self.nombre_ficha.nombre_ficha)
+
+
+

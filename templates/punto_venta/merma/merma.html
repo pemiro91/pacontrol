@@ -1,7 +1,7 @@
 {% extends  'base_admin.html' %}
 {% load static %}
 {% block submenu-superior %}
-    <h1 class="h3 mb-0 text-gray-800">Mermas</h1>
+    <h1 class="h3 mb-0 text-gray-800">Mermas-Productos</h1>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
         <li class="breadcrumb-item active" aria-current="page">Mermas</li>
@@ -14,7 +14,12 @@
         <div class="card mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
-
+                {% if request.user.rol == False %}
+                    <div>
+                        <a href="{% url 'mermas_material' %}" type="button" class="btn btn-primary mb-1" style="background-color: #ff5700;"><i
+                            class="fas fa-puzzle-piece"></i> Merma-Materiales</a>
+                    </div>
+                {% endif %}
             </div>
             <div class="table-responsive p-3">
                 <table class="table align-items-center table-flush table-hover" id="dataTableHover">
@@ -25,8 +30,8 @@
                         <th>Cantidad mermada</th>
                         {% if request.user.rol == False %}
                             <th>Costo</th>
+                            <th>Monto total</th>
                         {% endif %}
-                        <th>Monto total</th>
                         {% if request.user.rol == False %}
                             <th>Establecimiento</th>
                         {% endif %}
@@ -41,8 +46,8 @@
                         <th>Cantidad mermada</th>
                         {% if request.user.rol == False %}
                             <th>Costo</th>
+                            <th>Monto total</th>
                         {% endif %}
-                        <th>Monto total</th>
                         {% if request.user.rol == False %}
                             <th>Establecimiento</th>
                         {% endif %}
@@ -54,35 +59,49 @@
                         {% for merma in mermas %}
                             <tr>
                                 <td>{{ merma.fecha|date:'d-m-Y' }}</td>
-                                <td>{{ merma.producto.nombre_producto }}</td>
+                                <td>{{ merma.nombre_producto }}</td>
                                 <td>{{ merma.cantidad_producto_merma }}</td>
-                                {% if request.user.rol == False %}
-                                    <td>{{ merma.producto.costo }}</td>
-                                {% endif %}
-                                {% if request.user.rol == True %}
-                                    <td>{% widthratio merma.producto.precio_venta 1 merma.cantidad_producto_merma %}</td>
+                                <td>{{ merma.costo }} CUP</td>
+                                <td>{{ merma.monto }} CUP</td>
+                                {% if merma.establecimiento == None %}
+                                    <td>Almacén</td>
                                 {% else %}
-                                    <td>{% widthratio merma.producto.costo 1 merma.cantidad_producto_merma %}</td>
-                                {% endif %}
-                                {% if request.user.rol == False %}
                                     <td>{{ merma.establecimiento.nombre_establecimiento }}</td>
                                 {% endif %}
                                 <td>
-                                    <a href="#" type="button" data-toggle="modal"
-                                       class="btn btn-primary btn-sm waves-black"
-                                       data-id="{{ merma.id }}" data-count="{{ merma.cantidad_producto_merma }}"
-                                       data-form="{% url 'edit_merma' merma.id %}"
-                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                       title="Editar cantidad" data-target="#confirm-merma">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="#" data-href="{% url 'delete_merma' merma.id %}" data-toggle="modal"
-                                       class="btn btn-primary btn-sm" data-id="{{ merma.id }}"
-                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                       title="Eliminar merma"
-                                       data-target="#confirm-delete">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
+                                    {% if merma.establecimiento == None %}
+                                        <a href="#" type="button" data-toggle="modal"
+                                           class="btn btn-primary btn-sm waves-black"
+                                           data-id="{{ merma.id }}" data-count="{{ merma.cantidad_producto_merma }}"
+                                           data-form="{% url 'edit_merma_general' merma.id %}"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           title="Editar cantidad mermada" data-target="#confirm-merma-general">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="#" data-href="{% url 'delete_merma_general' merma.id %}" data-toggle="modal"
+                                           class="btn btn-primary btn-sm" data-id="{{ merma.id }}"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           title="Eliminar merma"
+                                           data-target="#confirm-delete">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="#" type="button" data-toggle="modal"
+                                           class="btn btn-primary btn-sm waves-black"
+                                           data-id="{{ merma.id }}" data-count="{{ merma.cantidad_producto_merma }}"
+                                           data-form="{% url 'edit_merma' merma.id %}"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           title="Editar cantidad" data-target="#confirm-merma">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="#" data-href="{% url 'delete_merma' merma.id %}" data-toggle="modal"
+                                           class="btn btn-primary btn-sm" data-id="{{ merma.id }}"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           title="Eliminar merma"
+                                           data-target="#confirm-delete">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -90,15 +109,11 @@
                         {% for merma in mermas_store %}
                             <tr>
                                 <td>{{ merma.fecha|date:'d-m-Y' }}</td>
-                                <td>{{ merma.producto.nombre_producto }}</td>
+                                <td>{{ merma.nombre_producto }}</td>
                                 <td>{{ merma.cantidad_producto_merma }}</td>
                                 {% if request.user.rol == False %}
-                                    <td>{{ merma.producto.costo }}</td>
-                                {% endif %}
-                                {% if request.user.rol == True %}
-                                    <td>{% widthratio merma.producto.precio_venta 1 merma.cantidad_producto_merma %}</td>
-                                {% else %}
-                                    <td>{% widthratio merma.producto.costo 1 merma.cantidad_producto_merma %}</td>
+                                    <td>{{ merma.costo }} CUP</td>
+                                    <td>{% widthratio merma.costo 1 merma.cantidad_producto_merma %}</td>
                                 {% endif %}
                                 <td>
                                     <a href="#" type="button" data-toggle="modal"
@@ -120,7 +135,6 @@
                             </tr>
                         {% endfor %}
                     {% endif %}
-
                     </tbody>
                 </table>
             </div>
@@ -170,6 +184,34 @@
         </div>
     </div>
 
+    <div class="modal fade" id="confirm-merma-general" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modifique la cantidad a mermar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <h6 id="modal_body"></h6>
+                    <form id="edit_merma_general_form" action="" method="post">{% csrf_token %}
+                      <div class="form-group">
+                        <label for="super_merma" class="col-form-label">Cantidad:</label>
+                        <input type="number" name="count_merma" class="form-control" id="super_merma" required>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                        <button id="saveModalButton" class="btn btn-secondary btn-ok" style="background-color: #ff5700;">Modificar</button>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 {% block js %}
     <!-- Page level plugins -->
@@ -195,8 +237,19 @@
     </script>
     <script>
         $(document).on('click','.waves-black',function(){
+            document.forms["edit_merma_general_form"]['super_merma'].value = $(this).data('count');
+        });
+    </script>
+    <script>
+        $(document).on('click','.waves-black',function(){
             const id = $(this).data('id');
             $("#edit_merma_form").attr("action", "mermas/edit_merma/" + id);
+        });
+    </script>
+    <script>
+        $(document).on('click','.waves-black',function(){
+            const id = $(this).data('id');
+            $("#edit_merma_general_form").attr("action", "mermas/edit_merma_general/" + id);
         });
     </script>
 

@@ -2,15 +2,14 @@ import datetime
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from hccontrolapp.models import Producto, Establecimiento, Traslado, User
+from hccontrolapp.models import Producto, Establecimiento, Traslado, User, Material, ProductoEstablecimiento
 
 
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = (
-            'imagen', 'nombre_producto', 'cantidad_existente', 'costo', 'precio_venta', 'categoria_producto',
-            'establecimiento', 'fecha')
+            'imagen', 'nombre_producto', 'cantidad_existente', 'costo', 'categoria_producto', 'fecha')
 
         exclude = ['fecha']
 
@@ -18,10 +17,8 @@ class ProductoForm(forms.ModelForm):
             "Imagen": "Imagen del producto",
             "nombre_producto": "Nombre del producto",
             "cantidad_existente": "Cantidad Existente",
-            "costo": "Costo",
-            "precio_venta": "Precio venta",
-            "categoria_producto": "Categoría de producto",
-            "establecimiento": "Establecimiento",
+            "costo": "Costo (USD)",
+            "categoria_producto": "Categoría de producto"
         }
 
         widgets = {
@@ -35,32 +32,43 @@ class ProductoForm(forms.ModelForm):
             'costo': forms.TextInput(
                 attrs={'class': 'form-control text', 'placeholder': 'Escriba el costo', 'required': True}),
 
-            # 'precio_venta': forms.FloatField(required=False, widget=forms.NumberInput(attrs={'step': "0.01"})),
-
-            'precio_venta': forms.TextInput(
-                attrs={'class': 'form-control text', 'placeholder': 'Escriba el precio de la venta', 'required': True}),
-
             'categoria_producto': forms.Select(attrs={'class': 'select form-control', 'label': 'Seleccione '
                                                                                                'la '
                                                                                                'categoría',
                                                       'required': True}),
 
-            'establecimiento': forms.Select(attrs={'class': 'select form-control', 'label': 'Seleccione '
-                                                                                            'el '
-                                                                                            'establecimiento',
-                                                   'required': True}),
-            # 'precio': forms.NumberInput(
-            #     attrs={'class': 'form-control ', 'placeholder': 'Escriba el precio de la pieza', })
-
         }
 
 
 class TrasladoForm(forms.Form):
+    class Meta:
+        model = Traslado
+        fields = ('producto', 'establecimiento', 'cantidad_trasladar', 'user', 'fecha')
+
+        exclude = ['fecha', 'producto', 'user']
+
+    establecimiento = forms.ModelChoiceField(queryset=Establecimiento.objects.all(),
+                                             widget=forms.Select(attrs={'class': 'select form-control',
+                                                                        'label': 'Seleccione el establecimiento',
+                                                                        'required': True}))
+
+    cantidad_trasladar = forms.CharField(label='Cantidad a trasladar',
+                                         widget=forms.NumberInput(attrs={'class': 'form-control text',
+                                                                         'placeholder': 'Escriba la cantidad a '
+                                                                                        'trasladar',
+                                                                         'required': True}))
+
+    precio_venta = forms.CharField(label='Precio de venta (CUP)',
+                                   widget=forms.NumberInput(attrs={'step': 0.25, 'class': 'form-control text',
+                                                                   'placeholder': 'Escriba el precio de la venta',
+                                                                   'required': True}))
+
+
+class TrasladoEstablecimientoForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         establecimiento_id = kwargs.pop("establecimiento_id")
-        super(TrasladoForm, self).__init__(*args, **kwargs)
-        print(establecimiento_id)
+        super(TrasladoEstablecimientoForm, self).__init__(*args, **kwargs)
         self.fields['establecimiento'] = forms.ModelChoiceField(
             widget=forms.Select(attrs={'class': 'select form-control',
                                        'label': 'Seleccione el establecimiento',
@@ -79,53 +87,44 @@ class TrasladoForm(forms.Form):
                                                                          'required': True}))
 
 
+CHOICES_UNIDAD = [
+    ('Metro', 'Metro'),
+    ('Unidad', 'Unidad')
+]
+
+
 class MaterialForm(forms.ModelForm):
+    unidad_medida = forms.ChoiceField(widget=forms.Select(attrs={'class': 'select form-control',
+                                                                 'label': 'Seleccione la unidad de medida',
+                                                                 'required': True}), choices=CHOICES_UNIDAD)
+
     class Meta:
-        model = Producto
-        fields = (
-            'imagen', 'nombre_producto', 'cantidad_existente', 'costo', 'precio_venta', 'categoria_producto',
-            'establecimiento', 'fecha')
+        model = Material
+        fields = ('imagen', 'nombre_material', 'cantidad', 'costo', 'unidad_medida', 'fecha')
 
         exclude = ['fecha']
 
         labels = {
-            "Imagen": "Imagen del producto",
-            "nombre_producto": "Nombre del producto",
-            "cantidad_existente": "Cantidad Existente",
-            "costo": "Costo",
-            "precio_venta": "Precio venta",
-            "categoria_producto": "Categoría de producto",
-            "establecimiento": "Establecimiento",
+            "imagen": "Imagen del material",
+            "nombre_material": "Nombre del material",
+            "cantidad": "Cantidad",
+            "costo": "Costo (USD)",
+            "unidad_medida": "Unidad de medida"
         }
 
         widgets = {
-            'nombre_producto': forms.TextInput(
-                attrs={'class': 'form-control text', 'placeholder': 'Escriba el nombre del producto',
+            'nombre_material': forms.TextInput(
+                attrs={'class': 'form-control text', 'placeholder': 'Escriba el nombre del material',
                        'required': True}),
 
-            'cantidad_existente': forms.TextInput(
-                attrs={'class': 'form-control text', 'placeholder': 'Escriba la cantidad existente', 'required': True}),
+            'cantidad': forms.TextInput(
+                attrs={'class': 'form-control text', 'placeholder': 'Escriba la cantidad', 'required': True}),
 
             'costo': forms.TextInput(
                 attrs={'class': 'form-control text', 'placeholder': 'Escriba el costo', 'required': True}),
 
-            # 'precio_venta': forms.FloatField(required=False, widget=forms.NumberInput(attrs={'step': "0.01"})),
-
-            'precio_venta': forms.TextInput(
-                attrs={'class': 'form-control text', 'placeholder': 'Escriba el precio de la venta', 'required': True}),
-
-            'categoria_producto': forms.Select(attrs={'class': 'select form-control', 'label': 'Seleccione '
-                                                                                               'la '
-                                                                                               'categoría',
-                                                      'required': True}),
-
-            'establecimiento': forms.Select(attrs={'class': 'select form-control', 'label': 'Seleccione '
-                                                                                            'el '
-                                                                                            'establecimiento',
-                                                   'required': True}),
-            # 'precio': forms.NumberInput(
-            #     attrs={'class': 'form-control ', 'placeholder': 'Escriba el precio de la pieza', })
-
+            'unidad_medida': forms.Select(attrs={'class': 'select form-control', 'label': 'Escriba la unidad de medida',
+                                                 'required': True}),
         }
 
 

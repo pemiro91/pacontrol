@@ -14,7 +14,12 @@
         <div class="card mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
-
+                {% if request.user.rol == False %}
+                    <div>
+                        <a href="{% url 'entradas_materiales' %}" type="button" class="btn btn-primary mb-1" style="background-color: #ff5700;"><i
+                            class="fas fa-puzzle-piece"></i> Entradas-Materiales</a>
+                    </div>
+                {% endif %}
             </div>
             <div class="table-responsive p-3">
                 {% if request.user.rol == False or request.user.is_superuser %}
@@ -24,7 +29,6 @@
                             <th>Nombre producto</th>
                             <th>Cantidad incrementada</th>
                             <th>Costo</th>
-                            <th>Monto total</th>
                             <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
@@ -34,7 +38,6 @@
                             <th>Nombre producto</th>
                             <th>Cantidad incrementada</th>
                             <th>Costo</th>
-                            <th>Monto total</th>
                             <th>Establecimiento</th>
                             <th>Operaciones</th>
                         </tr>
@@ -44,25 +47,49 @@
                             <tr>
                                 <td>{{ entrada.producto.nombre_producto }}</td>
                                 <td>{{ entrada.cantidad_producto_entrada }}</td>
-                                <td>{{ entrada.producto.costo }}</td>
-                                <td>{% widthratio entrada.producto.costo 1 entrada.cantidad_producto_entrada %}</td>
-                                <td>{{ entrada.establecimiento.nombre_establecimiento }}</td>
+                                <td>{% widthratio entrada.producto.costo 1 tasa.tasa %} CUP</td>
                                 <td>
-                                    <a href="#" type="button" data-toggle="modal"
-                                       class="btn btn-primary btn-sm waves-black"
-                                       data-id="{{ entrada.id }}" data-count="{{ entrada.cantidad_producto_entrada }}"
-                                       data-form="{% url 'edit_entrada' entrada.id %}"
-                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                       title="Editar cantidad" data-target="#confirm-entrada">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="#" data-href="{% url 'delete_entrada' entrada.id %}" data-toggle="modal"
-                                       class="btn btn-primary btn-sm" data-id="{{ entrada.id }}"
-                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                       title="Eliminar entrada"
-                                       data-target="#confirm-delete">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
+                                    {% if entrada.establecimiento == None %}
+                                        Almacén
+                                    {% else %}
+                                        {{ entrada.establecimiento.nombre_establecimiento }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entrada.establecimiento == None %}
+                                        <a href="#" type="button" data-toggle="modal"
+                                           class="btn btn-primary btn-sm waves-black"
+                                           data-id="{{ entrada.id }}" data-count="{{ entrada.cantidad_producto_entrada }}"
+                                           data-form="{% url 'edit_entrada_general' entrada.id %}"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           title="Editar cantidad" data-target="#confirm-entrada-general">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="#" data-href="{% url 'delete_entrada_general' entrada.id %}" data-toggle="modal"
+                                           class="btn btn-primary btn-sm" data-id="{{ entrada.id }}"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           title="Eliminar entrada"
+                                           data-target="#confirm-delete">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    {% else %}
+                                         <a href="#" type="button" data-toggle="modal"
+                                           class="btn btn-primary btn-sm waves-black"
+                                           data-id="{{ entrada.id }}" data-count="{{ entrada.cantidad_producto_entrada }}"
+                                           data-form="{% url 'edit_entrada' entrada.id %}"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           title="Editar cantidad" data-target="#confirm-entrada">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="#" data-href="{% url 'delete_entrada' entrada.id %}" data-toggle="modal"
+                                           class="btn btn-primary btn-sm" data-id="{{ entrada.id }}"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           title="Eliminar entrada"
+                                           data-target="#confirm-delete">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    {% endif %}
+
                                 </td>
                             </tr>
                         {% endfor %}
@@ -75,7 +102,6 @@
                             <tr>
                                 <th>Nombre producto</th>
                                 <th>Cantidad incrementada</th>
-                                <th>Monto total</th>
                                 <th>Operaciones</th>
                             </tr>
                         </thead>
@@ -83,7 +109,6 @@
                             <tr>
                                 <th>Nombre producto</th>
                                 <th>Cantidad incrementada</th>
-                                <th>Monto total</th>
                                 <th>Operaciones</th>
                             </tr>
                         </tfoot>
@@ -92,7 +117,6 @@
                             <tr>
                                 <td>{{ entrada.producto.nombre_producto }}</td>
                                 <td>{{ entrada.cantidad_producto_entrada }}</td>
-                                <td>{% widthratio entrada.producto.costo 1 entrada.cantidad_producto_entrada %}</td>
                                 <td>
                                     <a href="#" type="button" data-toggle="modal"
                                        class="btn btn-primary btn-sm waves-black"
@@ -164,6 +188,34 @@
         </div>
     </div>
 
+    <div class="modal fade" id="confirm-entrada-general" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modifique la cantidad a incrementar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <h6 id="modal_body"></h6>
+                    <form id="edit_entrada_general_form" action="" method="post">{% csrf_token %}
+                      <div class="form-group">
+                        <label for="super_entrada" class="col-form-label">Cantidad:</label>
+                        <input type="number" name="count_entrada" class="form-control" id="super_entrada" required>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                        <button id="saveModalButton" class="btn btn-secondary btn-ok" style="background-color: #ff5700;">Modificar</button>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 {% block js %}
     <!-- Page level plugins -->
@@ -189,8 +241,19 @@
     </script>
     <script>
         $(document).on('click','.waves-black',function(){
+            document.forms["edit_entrada_general_form"]['super_entrada'].value = $(this).data('count');
+        });
+    </script>
+    <script>
+        $(document).on('click','.waves-black',function(){
             const id = $(this).data('id');
             $("#edit_entrada_form").attr("action", "entradas/edit_entrada/" + id);
+        });
+    </script>
+    <script>
+        $(document).on('click','.waves-black',function(){
+            const id = $(this).data('id');
+            $("#edit_entrada_general_form").attr("action", "entradas/edit_entrada_general/" + id);
         });
     </script>
 
