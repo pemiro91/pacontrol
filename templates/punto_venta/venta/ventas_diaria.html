@@ -151,9 +151,11 @@
                             <th>Fecha</th>
                             <th>Cantidad</th>
                             <th>Venta Total</th>
-                            <th>Ganancia Bruta</th>
                             <th>Gastos</th>
-                            <th>Ganancia Neta</th>
+                            {% if request.user.rol == False or request.user.is_superuser %}
+                                <th>Ganancia Bruta</th>
+                                <th>Ganancia Neta</th>
+                            {% endif %}
                             <th>Operaciones</th>
                         </tr>
                         </thead>
@@ -162,9 +164,11 @@
                             <th>Fecha</th>
                             <th>Cantidad</th>
                             <th>Venta Total</th>
-                            <th>Ganancia Bruta</th>
                             <th>Gastos</th>
-                            <th>Ganancia Neta</th>
+                            {% if request.user.rol == False or request.user.is_superuser %}
+                                <th>Ganancia Bruta</th>
+                                <th>Ganancia Neta</th>
+                            {% endif %}
                             <th>Operaciones</th>
                         </tr>
                         </tfoot>
@@ -174,9 +178,11 @@
                                 <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
                                 <td>{{ sale.cantidad }}</td>
                                 <td>{{ sale.venta_total }}</td>
-                                <td>{{ sale.ganancia_bruta }}</td>
                                 <td>{{ sale.gasto }}</td>
-                                <td>{{ sale.ganancia_neta }}</td>
+                                {% if request.user.rol == False or request.user.is_superuser %}
+                                    <td>{{ sale.ganancia_bruta }}</td>
+                                    <td>{{ sale.ganancia_neta }}</td>
+                                {% endif %}
                                 <td>
                                     {% if sale.cantidad != 0 %}
                                         <a href="{% url 'ventas_slug' sale.id sale.establecimiento.slug %}" title="Detalles de la venta"
@@ -199,9 +205,11 @@
                             <th>Fecha</th>
                             <th>Cantidad</th>
                             <th>Venta Total</th>
-                            <th>Ganancia Bruta</th>
                             <th>Gastos</th>
-                            <th>Ganancia Neta</th>
+                            {% if request.user.rol == False or request.user.is_superuser %}
+                                <th>Ganancia Bruta</th>
+                                <th>Ganancia Neta</th>
+                            {% endif %}
                             <th>Operaciones</th>
                         </tr>
                         </thead>
@@ -210,9 +218,11 @@
                             <th>Fecha</th>
                             <th>Cantidad</th>
                             <th>Venta Total</th>
-                            <th>Ganancia Bruta</th>
                             <th>Gastos</th>
-                            <th>Ganancia Neta</th>
+                            {% if request.user.rol == False or request.user.is_superuser %}
+                                <th>Ganancia Bruta</th>
+                                <th>Ganancia Neta</th>
+                            {% endif %}
                             <th>Operaciones</th>
                         </tr>
                         </tfoot>
@@ -222,9 +232,11 @@
                                 <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
                                 <td>{{ sale.cantidad }}</td>
                                 <td>{{ sale.venta_total }} CUP</td>
-                                <td>{{ sale.ganancia_bruta }} CUP</td>
                                 <td>{{ sale.gasto }} CUP</td>
-                                <td>{{ sale.ganancia_neta }} CUP</td>
+                                {% if request.user.rol == False or request.user.is_superuser %}
+                                    <td>{{ sale.ganancia_bruta }} CUP</td>
+                                    <td>{{ sale.ganancia_neta }} CUP</td>
+                                {% endif %}
                                 <td>
                                     {% if sale.cantidad != 0 %}
                                         <a href="{% url 'ventas_slug' sale.id sale.establecimiento.slug %}" title="Detalles de la venta"

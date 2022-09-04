@@ -157,6 +157,12 @@ class ProductoEstablecimiento(models.Model):
     def __str__(self):
         return self.producto.nombre_producto
 
+    @classmethod
+    def get_total_sales_reporter(cls):
+        return sum([
+            sale.cantidad_existente * sale.precio_venta for sale in cls.objects.all()
+        ])
+
 
 class Traslado(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
@@ -190,8 +196,8 @@ class Gastos(models.Model):
 
 
 class Moneda(models.Model):
-    moneda = models.CharField(max_length=50, name='moneda')
-    tasa = models.IntegerField()
+    moneda = models.CharField(max_length=50, name='moneda', null=True, blank=True)
+    tasa = models.IntegerField(null=True, blank=True)
     slug = models.SlugField(unique=True, null=True)
 
     def str(self):
@@ -205,12 +211,12 @@ class Moneda(models.Model):
 class Venta(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, name='usuario')
     producto = models.ForeignKey(ProductoEstablecimiento, on_delete=models.CASCADE, name='producto')
-    cantidad = models.IntegerField()
+    cantidad = models.IntegerField(null=True, blank=True)
     tipo_pago = models.CharField(max_length=50, choices=TIPO_PAGO, name='tipo_pago')
-    venta_total = models.FloatField(max_length=100)
+    venta_total = models.FloatField(max_length=100, null=True, blank=True)
     costo = models.FloatField(max_length=100, null=True, blank=True)
     deudor = models.CharField(max_length=50, name='deudor', null=True, blank=True)
-    fecha_venta = models.DateTimeField(datetime.datetime.now())
+    fecha_venta = models.DateField(auto_now_add=True, null=True, blank=True)
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE, null=True, blank=True)
     slug = models.SlugField(unique=True, null=True)
 
@@ -229,22 +235,37 @@ class Venta(models.Model):
 
     @classmethod
     def get_total_sales(cls):
-        return sum([
+        valueFinal = sum([
             sale.cantidad * sale.producto.precio_venta for sale in
             cls.objects.filter(fecha_venta__day=date.today().day,
                                fecha_venta__month=date.today().month,
                                fecha_venta__year=date.today().year).exclude(tipo_pago='home_account')
         ])
+        if valueFinal:
+            return valueFinal
+        else:
+            return 0.0
+
+    # @classmethod
+    # def get_total_sales_reporter(cls):
+    #     return sum([
+    #         sale.cantidad * sale.producto.precio_venta for sale in
+    #         cls.objects.exclude(tipo_pago='home_account')
+    #     ])
 
     @classmethod
     def get_total_sales_costo(cls):
-        tasa = Moneda.objects.all()[0]
-        return sum([
-            sale.cantidad * (sale.producto.producto.costo * tasa.tasa) for sale in
-            cls.objects.filter(fecha_venta__day=date.today().day,
-                               fecha_venta__month=date.today().month,
-                               fecha_venta__year=date.today().year)
-        ])
+        tasa = Moneda.objects.all()
+        if tasa:
+            tasaFinal = Moneda.objects.all()[0]
+            return sum([
+                sale.cantidad * (sale.producto.producto.costo * tasaFinal.tasa) for sale in
+                cls.objects.filter(fecha_venta__day=date.today().day,
+                                   fecha_venta__month=date.today().month,
+                                   fecha_venta__year=date.today().year)
+            ])
+        else:
+            return 0.0
 
     @classmethod
     def get_total_sales_home(cls):
@@ -258,13 +279,13 @@ class Venta(models.Model):
 
 
 class Venta_Diaria(models.Model):
-    fecha_venta = models.DateField(auto_now_add=True)
-    cantidad = models.IntegerField()
-    venta_total = models.IntegerField()
-    costo = models.FloatField(max_length=100)
-    ganancia_bruta = models.FloatField(max_length=100)
-    gasto = models.FloatField(max_length=100)
-    ganancia_neta = models.FloatField(max_length=100)
+    fecha_venta = models.DateField(auto_now_add=True, null=True, blank=True)
+    cantidad = models.IntegerField(null=True, blank=True)
+    venta_total = models.IntegerField(null=True, blank=True)
+    costo = models.FloatField(max_length=100, null=True, blank=True)
+    ganancia_bruta = models.FloatField(max_length=100, null=True, blank=True)
+    gasto = models.FloatField(max_length=100, null=True, blank=True)
+    ganancia_neta = models.FloatField(max_length=100, null=True, blank=True)
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE, null=True, blank=True)
     slug = models.SlugField(unique=True, null=True)
 
@@ -306,7 +327,7 @@ class Merma(models.Model):
 class Material(models.Model):
     imagen = models.ImageField(upload_to='material/', null=True, blank=True)
     nombre_material = models.CharField(max_length=100, name='nombre_material')
-    cantidad = models.FloatField()
+    cantidad = models.FloatField(null=True, blank=True)
     costo = models.FloatField(max_length=100, name='costo')
     unidad_medida = models.CharField(max_length=50, name='unidad_medida')
     slug = models.SlugField(unique=True, null=True)
@@ -387,6 +408,3 @@ class Ficha_Tecnica(models.Model):
 
     def str(self):
         return str(self.nombre_ficha.nombre_ficha)
-
-
-

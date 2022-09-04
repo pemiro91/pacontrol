@@ -38,6 +38,7 @@
                 <table class="table align-items-center table-flush table-hover" id="dataTableHover">
                     <thead class="thead-light">
                     <tr>
+                        <th>Imagen</th>
                         <th>Nombre producto</th>
                         <th>Cantidad existente</th>
                         <th>Costo</th>
@@ -47,6 +48,7 @@
                     </thead>
                     <tfoot>
                     <tr>
+                        <th>Imagen</th>
                         <th>Nombre producto</th>
                         <th>Cantidad existente</th>
                         <th>Costo</th>
@@ -57,6 +59,7 @@
                     <tbody>
                     {% for producto in productos %}
                         <tr>
+                            <td><img src="{{ producto.imagen.url }}" class="img-fluid" alt="" width="50px" height="50px"></td>
                             <td>{{ producto.nombre_producto }}</td>
                             <td>{{ producto.cantidad_existente }}</td>
                             <td>{{ producto.costo }} USD</td>

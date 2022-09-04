@@ -5,17 +5,18 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout as do_logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.urls import reverse
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from hccontrolapp.models import Categoria_Producto, Producto, ProductoEstablecimiento, \
     Merma, Gastos, Venta, Venta_Diaria, Entrada, Ficha_Tecnica_Nombre, Ficha_Tecnica_Material, Ficha_Tecnica_Gastos, \
     Ficha_Tecnica, Establecimiento, Traslado, User, Material, Moneda, Merma_Material, Entrada_Material
 from hccontrolapp.form import ProductoForm, TrasladoForm, TrasladoEstablecimientoForm, UserForm, MaterialForm
-from datetime import date
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.db.models.query import QuerySet
 from django.utils.text import slugify
 from decimal import Decimal
+from django.db.models import Q, F, Count, Sum
+from django.utils import timezone
 
 
 # Create your views here.
@@ -45,10 +46,69 @@ def logout(request):
     return redirect('login_user')
 
 
+def allSundays(year):
+    """This code was provided in the previous answer! It's not mine!"""
+    d = date(year, 1, 1)  # January 1st
+    d += timedelta(days=7 - d.weekday())  # First Sunday
+    while d.year == year:
+        yield d
+        d += timedelta(days=7)
+
+
 @login_required
 def panel_home(request):
     if request.user.is_authenticated:
-        return render(request, "index.html", {})
+        sales_current_establishment = Venta.objects.all().values('establecimiento__nombre_establecimiento'). \
+            order_by('establecimiento').filter(fecha_venta__day=datetime.now().day,
+                                               fecha_venta__month=datetime.now().month,
+                                               fecha_venta__year=datetime.now().year).annotate(
+            venta_total=Sum('venta_total'))
+
+        gastos_actual_establishment = Gastos.objects.all().values('establecimiento__nombre_establecimiento'). \
+            order_by('establecimiento').filter(fecha_gasto__day=datetime.now().day,
+                                               fecha_gasto__month=datetime.now().month,
+                                               fecha_gasto__year=datetime.now().year).annotate(
+            monto_gasto=Sum('monto_gasto'))
+
+        sales_current = Venta_Diaria.objects.all().filter(fecha_venta__day=datetime.now().day,
+                                                          fecha_venta__month=datetime.now().month,
+                                                          fecha_venta__year=datetime.now().year).aggregate(
+            venta_total=Sum('venta_total'))
+
+        gastos_actual = Gastos.objects.all().filter(fecha_gasto__day=datetime.now().day,
+                                                    fecha_gasto__month=datetime.now().month,
+                                                    fecha_gasto__year=datetime.now().year).aggregate(
+            monto_gasto=Sum('monto_gasto'))
+
+        posible_venta = ProductoEstablecimiento.get_total_sales_reporter()
+
+        gasto_final = Merma.get_total_merma() + Gastos.get_total_gasto() + Venta.get_total_sales_home()
+        ganancia_bruta = Venta.get_total_sales() - Venta.get_total_sales_costo()
+        ganancia_neta = ganancia_bruta - gasto_final
+
+        for venta in sales_current_establishment:
+            print(venta['venta_total'])
+
+        some_day_last_week = timezone.now().date() - timedelta(days=7)
+        monday_of_last_week = some_day_last_week - timedelta(days=(some_day_last_week.isocalendar()[2] - 1))
+        monday_of_this_week = monday_of_last_week + timedelta(days=7)
+        lastWeek = Venta.objects.filter(fecha_venta__gte=monday_of_last_week,
+                                        fecha_venta__lt=monday_of_this_week).aggregate(
+            venta_total=Sum('venta_total'))
+
+        currentDate = date.today()
+
+        summaryDay = Venta.objects.filter(fecha_venta__range=(monday_of_this_week, currentDate.strftime("%Y-%m-%d"))) \
+            .aggregate(venta_total=Sum('venta_total'))
+
+        return render(request, "index.html", {'sales_current': sales_current['venta_total'],
+                                              'gastos_actual': gastos_actual['monto_gasto'],
+                                              'ganancia_neta': ganancia_neta,
+                                              'costo_inversion': Venta.get_total_sales_costo(),
+                                              'posible_venta': posible_venta, 'lastWeek': lastWeek['venta_total'],
+                                              'summaryDay': summaryDay['venta_total'],
+                                              'sales_current_establishment': sales_current_establishment,
+                                              'gastos_actual_establishment': gastos_actual_establishment})
     return redirect('login_user')
 
 
@@ -69,10 +129,9 @@ def insertar_usuario(request):
             messages.success(request, "El usuario se agregó satisfactoriamente!")
             return redirect("usuarios")
         else:
-            for e in userForm.errors['username'].as_data():
-                messages.error(request, str(e.message))
-                print(str(e.message))
-
+            messages.error(request, userForm.errors)
+            print(userForm.errors)
+            return redirect("insertar_usuario")
     else:
         userForm = UserForm()
     return render(request, 'usuarios/insertar_usuarios.html',
@@ -1163,6 +1222,15 @@ def ventas(request, id_vd):
 
 
 @login_required
+def ventas_deudor(request):
+    if request.user.is_authenticated:
+        sales = Venta.objects.filter(tipo_pago='credit')
+        context = {'sales': sales}
+        return render(request, "punto_venta/deudores/deudores.html", context)
+    return redirect('login_user')
+
+
+@login_required
 def ventas_slug(request, id_vd, store):
     if request.user.is_authenticated:
         venta = get_object_or_404(Venta_Diaria, pk=id_vd)
@@ -1171,6 +1239,21 @@ def ventas_slug(request, id_vd, store):
                                      fecha_venta__year=venta.fecha_venta.year)
         context = {'sales': sales, 'slug_store': store}
         return render(request, "punto_venta/venta/ventas.html", context)
+    return redirect('login_user')
+
+
+def edit_credit(request, id_c=None):
+    if request.user.is_authenticated:
+        venta = Venta.objects.get(id=id_c)
+        if request.method == 'POST':
+            amount_credit = request.POST.get('amount_credit')
+
+            Venta.objects.filter(id=id_c).update(venta_total=amount_credit)
+
+            messages.success(request, 'El crédito de ' + venta.deudor + ' fue modificada satisfactoriamente')
+            return redirect('ventas_deudor')
+        context = {'venta': venta}
+        return render(request, 'punto_venta/deudores/deudores.html', context)
     return redirect('login_user')
 
 
