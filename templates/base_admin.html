@@ -124,6 +124,7 @@
                                     <a class="collapse-item" href="{% url 'traslados_store' puntos_venta.first.slug %}"><i class="fas fa-truck"></i> Traslados</a>
                                 {% endif %}
                             {% else %}
+                                <a class="collapse-item" href="{% url 'ventas_deudor' %}"><i class="fas fa-archive"></i> Deudores</a>
                                 <a class="collapse-item" href="{% url 'mermas' %}"><i class="fas fa-hand-point-down"></i> Mermas</a>
                                 <a class="collapse-item" href="{% url 'entradas' %}"><i class="fas fa-hand-point-up"></i> Entradas</a>
                                 <a class="collapse-item" href="{% url 'ventas_diaria' %}"><i class="fas fa-money-bill"></i> Resumen ventas</a>

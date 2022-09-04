@@ -96,6 +96,8 @@ urlpatterns = [
                   ############# Venta Diaria ##############
                   path('productos_establecimientos/buy/<int:id_p>', views.buy, name="buy"),
                   path('ventas_diaria', views.ventas_diaria, name="ventas_diaria"),
+                  path('ventas_deudor', views.ventas_deudor, name="ventas_deudor"),
+                  path('ventas_deudor/edit_credit/<int:id_c>', views.edit_credit, name="edit_credit"),
                   path('ventas_diaria/<slug:store>', views.ventas_diaria_store, name="ventas_diaria_store"),
                   path('ventas_diaria/ventas/<int:id_vd>', views.ventas, name="ventas"),
                   path('ventas_diaria/ventas/<int:id_vd>/<slug:store>', views.ventas_slug, name="ventas_slug"),

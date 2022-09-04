@@ -7,6 +7,260 @@
     </ol>
 {% endblock %}
 {% block content %}
+        <div class="col-xl-4 col-md-6 mb-4">
+            <a href="#" data-toggle="modal" data-target="#table-venta-diaria">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">Venta diaria</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {% if sales_current %}
+                                        {{ sales_current }} CUP
+                                    {% else %}
+                                        0.0 CUP
+                                    {% endif %}
+                                </div>
+{#                                <div class="mt-2 mb-0 text-muted text-xs">#}
+{#                                    <span class="text-success mr-2"><i class="fa fa-money-bill"></i> 3.48%</span>#}
+{#                                    <span>Since last month</span>#}
+{#                                </div>#}
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-money-bill fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-4">
+            <a href="#" data-toggle="modal" data-target="#table-gasto-diario">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">Gasto diario</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {% if gastos_actual %}
+                                        {{ gastos_actual }} CUP
+                                    {% else %}
+                                        0.0 CUP
+                                    {% endif %}
+                                </div>
+{#                                <div class="mt-2 mb-0 text-muted text-xs">#}
+{#                                    <span class="text-success mr-2"><i class="fa fa-atlas"></i> 3.48%</span>#}
+{#                                    <span>Since last month</span>#}
+{#                                </div>#}
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-sort-amount-down fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-4">
+            <a href="">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">Ganancia diaria</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {% if ganancia_neta %}
+                                        {{ ganancia_neta }} CUP
+                                    {% else %}
+                                        0.0 CUP
+                                    {% endif %}
+                                </div>
+        {#                        <div class="mt-2 mb-0 text-muted text-xs">#}
+        {#                            <span class="text-success mr-2"><i class="fa fa-users"></i> 3.48%</span>#}
+        {#                            <span>Since last month</span>#}
+        {#                        </div>#}
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-money-bill-wave fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-4">
+            <a href="">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">Costo de inversión</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {% if costo_inversion %}
+                                        {{ costo_inversion }} CUP
+                                    {% else %}
+                                        0.0 CUP
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-money-bill fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-4">
+            <a href="">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">Posible venta</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {% if posible_venta %}
+                                        {{ posible_venta }} CUP
+                                    {% else %}
+                                        0.0 CUP
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-money-bill fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-4">
+            <a href="">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">Resumen de la semana pasada</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {% if lastWeek %}
+                                        {{ lastWeek }} CUP
+                                    {% else %}
+                                        0.0 CUP
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-table fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-4">
+            <a href="">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-uppercase mb-1">Resumen de las ventas segun los días</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {% if summaryDay %}
+                                        {{ summaryDay }} CUP
+                                    {% else %}
+                                        0.0 CUP
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-table fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+
+        <div class="modal fade bd-example-modal-lg" id="table-venta-diaria" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Venta diaria por local</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h6 id="modal_body"></h6>
+                            <div class="table-responsive p-3">
+                                <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th>Establecimiento</th>
+                                        <th>Total de ventas</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for operacion in sales_current_establishment %}
+                                            <tr>
+                                                <td>{{ operacion.establecimiento__nombre_establecimiento }}</td>
+                                                <td>{{ operacion.venta_total }} CUP</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="card-footer"></div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary btn-ok" style="background-color: #ff5700;" data-dismiss="modal">Cerrar</button>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade bd-example-modal-lg" id="table-gasto-diario" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Gasto diario por local</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h6 id="modal_body"></h6>
+                            <div class="table-responsive p-3">
+                                <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th>Establecimiento</th>
+                                        <th>Total de gastos</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for operacion in gastos_actual_establishment %}
+                                            <tr>
+                                                <td>{{ operacion.establecimiento__nombre_establecimiento }}</td>
+                                                <td>{{ operacion.monto_gasto }} CUP</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="card-footer"></div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary btn-ok" style="background-color: #ff5700;" data-dismiss="modal">Cerrar</button>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
 
 
 
