@@ -216,7 +216,9 @@ class Venta(models.Model):
     venta_total = models.FloatField(max_length=100, null=True, blank=True)
     costo = models.FloatField(max_length=100, null=True, blank=True)
     deudor = models.CharField(max_length=50, name='deudor', null=True, blank=True)
+    restante = models.FloatField(max_length=100, null=True, blank=True)
     fecha_venta = models.DateField(auto_now_add=True, null=True, blank=True)
+    fecha_modificada = models.DateField(auto_now_add=True, null=True, blank=True)
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.CASCADE, null=True, blank=True)
     slug = models.SlugField(unique=True, null=True)
 
@@ -408,3 +410,40 @@ class Ficha_Tecnica(models.Model):
 
     def str(self):
         return str(self.nombre_ficha.nombre_ficha)
+
+
+class Auditoria(models.Model):
+    nombre = models.CharField(max_length=50)
+    cellphone = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20)
+    carnet = models.CharField(max_length=12)
+    address = models.CharField(max_length=250)
+    slug = models.SlugField(null=True, unique=True)
+
+    def save(self, *args, **kwargs):
+        slug_str = "%s" % self.nombre
+        unique_slugify(self, slug_str)
+        super(Auditoria, self).save(**kwargs)
+
+    def __str__(self):
+        return self.nombre
+
+
+class Auditoria_Material(models.Model):
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, name='material')
+    cantidad_material = models.FloatField(null=True, blank=True)
+    auditoria = models.ForeignKey(Auditoria, on_delete=models.CASCADE, name='auditoria')
+
+    def __str__(self):
+        return self.auditoria.nombre
+
+
+class Auditoria_Entrega(models.Model):
+    nombre_producto = models.CharField(max_length=250, null=True, blank=True)
+    cantidad_producto = models.FloatField(null=True, blank=True)
+    fecha_entrega = models.DateField(null=True, blank=True)
+    auditoria = models.ForeignKey(Auditoria, on_delete=models.CASCADE, name='auditoria')
+    fecha = models.DateTimeField(null=False, blank=False, auto_now_add=True)
+
+    def __str__(self):
+        return self.auditoria.nombre
