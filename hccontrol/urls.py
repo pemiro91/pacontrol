@@ -129,6 +129,22 @@ urlpatterns = [
                        name="edit_entrada_material"),
                   path('entradas_material/delete_entrada/<int:id_e>', views.delete_entrada_material,
                        name="delete_entrada_material"),
+                  path('auditorias', views.auditorias, name="auditorias"),
+                  path('auditorias/add_auditoria', views.add_auditoria, name="add_auditoria"),
+                  path('auditorias/add_material_auditar/<slug:name>', views.add_material_auditar,
+                       name="add_material_auditar"),
+                  path('auditorias/edit_material_auditar/<slug:name>', views.edit_material_auditar,
+                       name="edit_material_auditar"),
+                  path('auditorias/add_material_auditar/add-count-material-auditor/<slug:name>/<slug:material>'
+                       , views.add_count_material_auditar, name="add_count_material_auditar"),
+                  path('auditorias/edit_material_auditar/edit-count-material-auditor/<slug:name>/<slug:material>'
+                       , views.edit_count_material_auditar, name="edit_count_material_auditar"),
+                  path('auditorias/entregar/<slug:name>', views.entregar, name="entregar"),
+                  path('auditorias/entregar/add-producto-entrega/<slug:name>', views.add_producto_entrega,
+                       name="add_producto_entrega"),
+                  path('auditorias/entregar/edit_product/<int:id_o>', views.edit_product, name="edit_product"),
+                  path('auditorias/entregar/delete_product/<slug:name>/<int:id_p>', views.delete_product,
+                       name="delete_product"),
 
                   path('almacen/ficha-tecnica/add_name_ficha', views.add_name_ficha, name="add_name_ficha"),
                   path('almacen/ficha-tecnica/<slug:ficha>', views.add_material, name="add_material"),

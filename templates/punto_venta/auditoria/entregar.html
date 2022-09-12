@@ -1,0 +1,229 @@
+{% extends  'base_admin.html' %}
+{% load static %}
+{% block submenu-superior %}
+    <h1 class="h3 mb-0 text-gray-800">Productos a entregar - {{ ficha_nombre.nombre }}</h1>
+    <ol class="breadcrumb">
+    </ol>
+{% endblock %}
+{% block content %}
+
+    <!-- DataTable with Hover -->
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
+                <div>
+                    <a href="#" data-url="{% url 'add_producto_entrega' ficha %}" data-toggle="modal"
+                       class="btn btn-primary btn-sm waves-black" data-ficha="{{ ficha }}"
+                       data-slug="{{ ficha }}" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " title="Cantidad de producto"
+                       data-target="#confirm-count"> <i class="fas fa-plus"></i> Agregar
+                    </a>
+                    <a href="{% url 'auditorias' %}" class="btn btn-primary btn-sm waves-black"
+                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " title="Finalizar proceso"
+                       > <i class="fas fa-door-open"></i> Finalizar
+                    </a>
+                </div>
+
+            </div>
+            <div class="table-responsive p-3">
+                <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                    <thead class="thead-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Cantidad</th>
+                        <th>Fecha Entrega</th>
+                        <th>Fecha de creación</th>
+                        <th>Operaciones</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Cantidad</th>
+                        <th>Fecha Entrega</th>
+                        <th>Fecha de creación</th>
+                        <th>Operaciones</th>
+                    </tr>
+                    </tfoot>
+                    <tbody>
+                    {% for entrega in auditorias_entrega %}
+                        <tr>
+                            <td>{{ entrega.nombre_producto }}</td>
+                            <td>{{ entrega.cantidad_producto }}</td>
+                            <td>{{ entrega.fecha_entrega }}</td>
+                            <td>{{ entrega.fecha }}</td>
+                            <td width="20%">
+                                <a href="#" type="button" data-toggle="modal"
+                                   class="btn btn-primary btn-sm waves-black"
+                                   data-id="{{ entrega.id }}" data-name="{{ entrega.nombre_producto }}"
+                                   data-count="{{ entrega.cantidad_producto }}"
+                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                   data-fecha="{{ entrega.fecha_entrega|date:'Y-m-d' }}"
+                                   data-form="{% url 'edit_product' entrega.id %}"
+                                   title="Editar cantidad" data-target="#confirm-edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                |
+                                <a href="#" data-href="{% url 'delete_product' ficha entrega.id %}" data-toggle="modal"
+                                   class="btn btn-primary btn-sm" data-id="{{ entrega.id }}"
+                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                   title="Eliminar producto"
+                                   data-target="#confirm-delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal Merma -->
+    <div class="modal fade" id="confirm-count" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Agregue los datos del producto a entregar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add_product_form" action="" method="post">{% csrf_token %}
+                      <div class="form-group">
+                        <label for="name-material" class="col-form-label">Nombre:</label>
+                        <input type="text" name="name_producto_auditoria" class="form-control" id="name-material">
+                      </div>
+                      <div class="form-group">
+                        <label for="count-material" class="col-form-label">Cantidad:</label>
+                        <input type="number" name="count_product_auditoria" class="form-control" id="count-material">
+                      </div>
+                      <div class="form-group">
+                        <label for="datepicker2" class="col-form-label">Fecha de entrega:</label>
+                        <input id="datepicker2" required class="form-control" name="fecha_entrega"
+                               placeholder="Fecha entrega"/>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-secondary btn-ok" style="background-color: #ff5700;">Agregar</button>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirm-edit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modifique los datos del producto a entregar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit_product_form" action="" method="post">{% csrf_token %}
+                      <div class="form-group">
+                        <label for="name-material" class="col-form-label">Nombre:</label>
+                        <input type="text" name="name_producto_auditoria_edit" class="form-control" id="name-material">
+                      </div>
+                      <div class="form-group">
+                        <label for="count-material" class="col-form-label">Cantidad:</label>
+                        <input type="number" name="count_product_auditoria_edit" class="form-control" id="count-material">
+                      </div>
+                      <div class="form-group">
+                        <label for="datepicker3" class="col-form-label">Fecha de entrega:</label>
+                        <input id="datepicker3" required class="form-control" name="fecha_entrega_edit"
+                               placeholder="Fecha entrega"/>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-secondary btn-ok" style="background-color: #ff5700;">Modificar</button>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Eliminar-->
+    <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Desea eliminar este producto?</h5>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary"  data-dismiss="modal">Cerrar</button>
+                    <a class="btn btn-primary btn-ok" style="background-color: #ff5700;">Eliminar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block js %}
+    <!-- Page level plugins -->
+    <script src="{% static 'control_panel/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'control_panel/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable(); // ID From dataTable
+            $('#dataTableHover').DataTable(); // ID From dataTable with Hover
+        });
+    </script>
+
+    <script>
+        $(document).on('click','.waves-black',function(){
+            const name = $(this).data('ficha');
+            console.log(name)
+            $("#add_product_form").attr("action", "add-producto-entrega/"+ name);
+        });
+    </script>
+    <script>
+        $('#datepicker2').datepicker({
+            uiLibrary: 'bootstrap4',
+            startView: 2,
+            todayBtn: "linked",
+            language: "es",
+            format: "yyyy-mm-dd",
+        });
+         $('#datepicker3').datepicker({
+            uiLibrary: 'bootstrap4',
+            startView: 2,
+            todayBtn: "linked",
+            language: "es",
+            format: "yyyy-mm-dd",
+        });
+    </script>
+
+    <script>
+        $(document).on('click','.waves-black',function(){
+            document.forms["edit_product_form"]['name-material'].value = $(this).data('name');
+            document.forms["edit_product_form"]['count-material'].value = parseInt($(this).data('count'));
+            document.forms["edit_product_form"]['datepicker3'].value = $(this).data('fecha');
+        });
+    </script>
+    <script>
+        $(document).on('click','.waves-black',function(){
+            const id = $(this).data('id');
+            $("#edit_product_form").attr("action", "edit_product/" + id);
+        });
+    </script>
+    <script>
+        $('#confirm-delete').on('show.bs.modal', function (e) {
+            $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+        });
+    </script>
+{% endblock %}

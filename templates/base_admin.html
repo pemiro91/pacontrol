@@ -114,6 +114,7 @@
                                 <a class="collapse-item" href="{% url 'establecimientos' %}"><i class="fas fa-fw fa-home"></i> Establecimientos</a>
                                 <a class="collapse-item" href="{% url 'monedas' %}"><i class="fas fa-fw fa-coins"></i> Tipo moneda</a>
                                 <a class="collapse-item" href="{% url 'ficha_tecnica' %}"><i class="fas fa-fw fa-book"></i> Fichas Técnicas</a>
+                                <a class="collapse-item" href="{% url 'auditorias' %}"><i class="fas fa-truck-loading"></i> Auditor&iacute;a materiales</a>
                             {% endif %}
                             {% if request.user.rol == True %}
                                 {% if puntos_venta.first %}
