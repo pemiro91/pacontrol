@@ -1,0 +1,150 @@
+{% extends  'base_admin.html' %}
+{% load static %}
+{% block submenu-superior %}
+    <h1 class="h3 mb-0 text-gray-800">Auditor&iacute;a materiales</h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Auditor&iacute;a materiales</li>
+    </ol>
+{% endblock %}
+{% block content %}
+
+    <!-- DataTable with Hover -->
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Auditor&iacute;a</h6>
+                <a href="#" data-toggle="modal" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " class="btn btn-primary btn-sm waves-black"
+                   title="Agregar persona"
+                   data-target="#confirm-auditar"> <i class="fas fa-user-plus"></i> Agregar auditor
+                </a>
+            </div>
+            <div class="table-responsive p-3">
+                <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                    <thead class="thead-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th># de Carnet</th>
+                        <th># Móvil</th>
+                        <th># Fijo</th>
+                        <th>Dirección</th>
+                        <th>Operaciones</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th>Nombre</th>
+                        <th># de Carnet</th>
+                        <th># Móvil</th>
+                        <th># Fijo</th>
+                        <th>Dirección</th>
+                        <th>Operaciones</th>
+                    </tr>
+                    </tfoot>
+                    <tbody>
+                    {% for audi in auditorias %}
+                        <tr>
+                            <td>{{ audi.nombre }}</td>
+                            <td>{{ audi.carnet }}</td>
+                            {% if audi.cellphone %}
+                                <td>{{ audi.cellphone }}</td>
+                            {% else %}
+                                <td>-</td>
+                            {% endif %}
+                            {% if audi.phone %}
+                                <td>{{ audi.phone }}</td>
+                            {% else %}
+                                <td>-</td>
+                            {% endif %}
+                            <td width="20%">{{ audi.address }}</td>
+                            <td>
+                                {% if audi.countMaterial %}
+                                    <a href="{% url 'edit_material_auditar' audi.slug %}" type="button"
+                                       class="btn btn-primary btn-sm waves-black"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Materiales">
+                                        Materiales
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'add_material_auditar' audi.slug %}" type="button"
+                                       class="btn btn-primary btn-sm waves-black"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Materiales">
+                                        Agregar Material
+                                    </a>
+                                {% endif %}
+                                |
+                                {% if audi.countEntrega %}
+                                    <a href="{% url 'entregar' audi.slug %}" type="button"
+                                       class="btn btn-primary btn-sm waves-black"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       title="Materiales" data-target="#confirm-count">
+                                        Entregar
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirm-auditar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Datos de la persona</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add_auditor_form" action="{% url 'add_auditoria' %}" method="post">{% csrf_token %}
+                      <div class="form-group">
+                        <label for="name_auditor" class="col-form-label">Nombre:</label>
+                        <input type="text" name="name_auditor" class="form-control" id="name_auditor">
+                      </div>
+                      <div class="form-group">
+                        <label for="cellphone_auditor" class="col-form-label">Teléfono móvil:</label>
+                        <input type="tel" name="cellphone_auditor" class="form-control" id="cellphone_auditor">
+                      </div>
+                      <div class="form-group">
+                        <label for="phone_auditor" class="col-form-label">Teléfono fijo:</label>
+                        <input type="tel" name="phone_auditor" class="form-control" id="phone_auditor">
+                      </div>
+                      <div class="form-group">
+                        <label for="carnet_auditor" class="col-form-label">Carnet de identidad:</label>
+                        <input type="text" name="carnet_auditor" class="form-control" id="carnet_auditor" maxlength="11">
+                      </div>
+                      <div class="form-group">
+                        <label for="address_auditor" class="col-form-label">Direcci&oacute;n:</label>
+                        <textarea rows="5" cols="60" name="address_auditor" class="form-control" id="address_auditor"></textarea>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-secondary btn-ok" style="background-color: #ff5700;">Agregar</button>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block js %}
+    <!-- Page level plugins -->
+    <script src="{% static 'control_panel/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'control_panel/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable(); // ID From dataTable
+            $('#dataTableHover').DataTable(); // ID From dataTable with Hover
+        });
+    </script>
+
+{% endblock %}

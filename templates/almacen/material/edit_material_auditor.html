@@ -1,10 +1,11 @@
 {% extends  'base_admin.html' %}
 {% load static %}
 {% block submenu-superior %}
-    <h1 class="h3 mb-0 text-gray-800">Deudores</h1>
+    <h1 class="h3 mb-0 text-gray-800">Editar material - {{ ficha_nombre.nombre }}</h1>
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Deudores</li>
+        <li class="breadcrumb-item"><a href="{% url 'auditorias' %}">Auditoría materiales</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Editar material - {{ ficha_nombre.nombre }}</li>
     </ol>
 {% endblock %}
 {% block content %}
@@ -14,55 +15,47 @@
         <div class="card mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
+                <a href="{% url 'add_material_auditar' ficha %}"
+                   class="btn btn-primary mb-1 waves-black2"
+                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " title="Agregar material"><i class="fas fa-plus"></i> Agregar material
+                </a>
             </div>
             <div class="table-responsive p-3">
                 <table class="table align-items-center table-flush table-hover" id="dataTableHover">
                     <thead class="thead-light">
                     <tr>
-                        <th>Producto</th>
+                        <th>Imagen</th>
+                        <th>Nombre material</th>
                         <th>Cantidad</th>
-                        <th>Deudor</th>
-                        <th>Fecha</th>
-                        <th>Crédito</th>
-                        <th>Restante</th>
-                        <th>&Uacute;ltima modificaci&oacute;n</th>
+                        <th>Costo</th>
+                        <th>Unidad Medida</th>
                         <th>Operaciones</th>
                     </tr>
                     </thead>
                     <tfoot>
                     <tr>
-                        <th>Producto</th>
+                        <th>Imagen</th>
+                        <th>Nombre material</th>
                         <th>Cantidad</th>
-                        <th>Deudor</th>
-                        <th>Fecha</th>
-                        <th>Crédito</th>
-                        <th>Restante</th>
-                        <th>&Uacute;ltima modificaci&oacute;n</th>
+                        <th>Costo</th>
+                        <th>Unidad Medida</th>
                         <th>Operaciones</th>
                     </tr>
                     </tfoot>
                     <tbody>
-                    {% for sale in sales %}
+                    {% for mat in materials %}
                         <tr>
-                            <td>{{ sale.producto.producto.nombre_producto }}</td>
-                            <td>{{ sale.cantidad }}</td>
-                            {% if sale.deudor %}
-                                <td>{{ sale.deudor }}</td>
-                            {% else %}
-                                <td>-</td>
-                            {% endif %}
-                            <td>{{ sale.fecha_venta|date:'d/m/Y' }}</td>
-                            <td>{{ sale.venta_total }} CUP</td>
-                            <td>{{ sale.restante }} CUP</td>
-                            <td>{{ sale.fecha_modificada|date:'d/m/Y' }}</td>
-                            <td>
-                                <a href="#" type="button" data-toggle="modal"
-                                   class="btn btn-primary btn-sm waves-black"
-                                   data-id="{{ sale.id }}" data-count="{{ sale.restante }}"
-                                   data-form="{% url 'edit_credit' sale.id %}"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Modificar crédito" data-target="#confirm-count">
-                                    <i class="fas fa-edit"></i>
+                            <td><img src="{{ mat.material.imagen.url }}" class="img-fluid" alt="" width="50px" height="50px"></td>
+                            <td>{{ mat.material.nombre_material }}</td>
+                            <td>{{ mat.cantidad_material }}</td>
+                            <td>{{ mat.material.costo }} USD</td>
+                            <td>{{ mat.material.unidad_medida }}</td>
+                            <td width="20%">
+                                <a href="#" data-url="{% url 'edit_count_material_auditar' ficha mat.material.slug %}" data-toggle="modal"
+                                   class="btn btn-primary btn-sm waves-black" data-ficha="{{ ficha }}"
+                                   data-count="{{ mat.cantidad_material }}"
+                                   data-slug="{{ mat.material.slug }}" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " title="Cantidad de material"
+                                   data-target="#confirm-count"> <i class="fas fa-edit"></i> Editar
                                 </a>
                             </td>
                         </tr>
@@ -70,30 +63,30 @@
                     </tbody>
                 </table>
             </div>
+
         </div>
     </div>
 
+    <!-- Modal Merma -->
     <div class="modal fade" id="confirm-count" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modifique el crédito</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Agregue la cantidad de material</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-
                 <div class="modal-body">
-                    <h6 id="modal_body"></h6>
-                    <form id="edit_credit_form" action="" method="post">{% csrf_token %}
+                    <form id="add_count_form" action="" method="post">{% csrf_token %}
                       <div class="form-group">
-                        <label for="super_credit" class="col-form-label">Monto</label>
-                        <input type="text" name="amount_credit" class="form-control" id="super_credit" required>
+                        <label for="count-material" class="col-form-label">Cantidad:</label>
+                        <input type="number" name="count_material_auditoria" class="form-control" id="count-material">
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
-                        <button id="saveModalButton" class="btn btn-secondary btn-ok" style="background-color: #ff5700;">Modificar</button>
+                        <button type="submit" class="btn btn-secondary btn-ok" style="background-color: #ff5700;">Editar</button>
                       </div>
                     </form>
                 </div>
@@ -114,17 +107,20 @@
             $('#dataTableHover').DataTable(); // ID From dataTable with Hover
         });
     </script>
+
     <script>
         $(document).on('click','.waves-black',function(){
-            {#var count = $(this).data('count');#}
-            document.forms["edit_credit_form"]['super_credit'].value = $(this).data('count');
+            document.forms["add_count_form"]['count-material'].value = parseInt($(this).data('count'));
         });
     </script>
 
     <script>
         $(document).on('click','.waves-black',function(){
-            const id = $(this).data('id');
-            $("#edit_credit_form").attr("action", "ventas_deudor/edit_credit/" + id);
+            const name = $(this).data('ficha');
+            const slug = $(this).data('slug');
+            console.log(name)
+            console.log(slug)
+            $("#add_count_form").attr("action", "edit-count-material-auditor/"+ name +"/" + slug);
         });
     </script>
 {% endblock %}

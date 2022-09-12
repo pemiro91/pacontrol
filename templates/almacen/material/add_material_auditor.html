@@ -1,0 +1,121 @@
+{% extends  'base_admin.html' %}
+{% load static %}
+{% block submenu-superior %}
+    <h1 class="h3 mb-0 text-gray-800">Agregar material - {{ ficha_nombre.nombre }}</h1>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'panel' %}">Resumen</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'auditorias' %}">Auditoría materiales</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Agregar material</li>
+    </ol>
+{% endblock %}
+{% block content %}
+
+    <!-- DataTable with Hover -->
+    <div class="col-lg-12">
+        <div class="card mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h5 class="m-0 font-weight-bold text-primary">{{ count_auditoria_material }} material</h5>
+                {% if count_auditoria_material %}
+                    <a href="{% url 'entregar' ficha %}"
+                       class="btn btn-primary mb-1 waves-black2"
+                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " title="Cantidad de material"> Debe Entregar
+                    </a>
+                {% endif %}
+            </div>
+            <div class="table-responsive p-3">
+                <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+                    <thead class="thead-light">
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Nombre material</th>
+                        <th>Cantidad</th>
+                        <th>Costo</th>
+                        <th>Unidad Medida</th>
+                        <th>Operaciones</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Nombre material</th>
+                        <th>Cantidad</th>
+                        <th>Costo</th>
+                        <th>Unidad Medida</th>
+                        <th>Operaciones</th>
+                    </tr>
+                    </tfoot>
+                    <tbody>
+                    {% for material in materials %}
+                        <tr>
+                            <td><img src="{{ material.imagen.url }}" class="img-fluid" alt="" width="50px" height="50px"></td>
+                            <td>{{ material.nombre_material }}</td>
+                            <td>{{ material.cantidad }}</td>
+                            <td>{{ material.costo }} USD</td>
+                            <td>{{ material.unidad_medida }}</td>
+                            <td width="20%">
+                                <a href="#" data-url="{% url 'add_count_material_auditar' ficha material.slug %}" data-toggle="modal"
+                                   class="btn btn-primary btn-sm waves-black" data-ficha="{{ ficha }}"
+                                   data-slug="{{ material.slug }}" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " title="Cantidad de material"
+                                   data-target="#confirm-count"> <i class="fas fa-plus"></i> Agregar
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal Merma -->
+    <div class="modal fade" id="confirm-count" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Agregue la cantidad de material</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add_count_form" action="" method="post">{% csrf_token %}
+                      <div class="form-group">
+                        <label for="count-material" class="col-form-label">Cantidad:</label>
+                        <input type="number" name="count_material_auditoria" class="form-control" id="count-material" step=".01">
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-secondary btn-ok" style="background-color: #ff5700;">Agregar</button>
+                      </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block js %}
+    <!-- Page level plugins -->
+    <script src="{% static 'control_panel/vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'control_panel/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- Page level custom scripts -->
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable(); // ID From dataTable
+            $('#dataTableHover').DataTable(); // ID From dataTable with Hover
+        });
+    </script>
+
+    <script>
+        $(document).on('click','.waves-black',function(){
+            const name = $(this).data('ficha');
+            const slug = $(this).data('slug');
+            console.log(name)
+            console.log(slug)
+            $("#add_count_form").attr("action", "add-count-material-auditor/"+ name +"/" + slug);
+        });
+    </script>
+{% endblock %}

@@ -8,7 +8,8 @@ from django.urls import reverse
 from datetime import date, datetime, timedelta
 from hccontrolapp.models import Categoria_Producto, Producto, ProductoEstablecimiento, \
     Merma, Gastos, Venta, Venta_Diaria, Entrada, Ficha_Tecnica_Nombre, Ficha_Tecnica_Material, Ficha_Tecnica_Gastos, \
-    Ficha_Tecnica, Establecimiento, Traslado, User, Material, Moneda, Merma_Material, Entrada_Material
+    Ficha_Tecnica, Establecimiento, Traslado, User, Material, Moneda, Merma_Material, Entrada_Material, Auditoria, \
+    Auditoria_Material, Auditoria_Entrega
 from hccontrolapp.form import ProductoForm, TrasladoForm, TrasladoEstablecimientoForm, UserForm, MaterialForm
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
@@ -758,7 +759,7 @@ def delete_entrada_general(request, id_e):
     return redirect('login_user')
 
 
-############# Merma ##############
+""" Merma """
 
 
 @login_required
@@ -1114,12 +1115,14 @@ def buy(request, id_p):
             if deudor_name:
                 Venta.objects.create(usuario=request.user, producto=producto, cantidad=int(count_product_var),
                                      tipo_pago=payment_type, venta_total=venta_monto, costo=venta_monto_costo,
-                                     deudor=deudor_name, establecimiento_id=producto.establecimiento.id,
-                                     fecha_venta=datetime.now())
+                                     deudor=deudor_name, restante=venta_monto,
+                                     establecimiento_id=producto.establecimiento.id,
+                                     fecha_venta=datetime.now(), fecha_modificada=datetime.now())
             else:
                 Venta.objects.create(usuario=request.user, producto=producto, cantidad=int(count_product_var),
                                      tipo_pago=payment_type, venta_total=venta_monto, costo=venta_monto_costo,
-                                     establecimiento_id=producto.establecimiento.id, fecha_venta=datetime.now())
+                                     establecimiento_id=producto.establecimiento.id, fecha_venta=datetime.now(),
+                                     fecha_modificada=datetime.now())
 
             count_venta = producto.cantidad_existente - int(count_product_var)
             ProductoEstablecimiento.objects.filter(id=producto.id).update(cantidad_existente=count_venta)
@@ -1248,7 +1251,8 @@ def edit_credit(request, id_c=None):
         if request.method == 'POST':
             amount_credit = request.POST.get('amount_credit')
 
-            Venta.objects.filter(id=id_c).update(venta_total=amount_credit)
+            Venta.objects.filter(id=id_c).update(restante=amount_credit)
+            Venta.objects.filter(id=id_c).update(fecha_modificada=datetime.now())
 
             messages.success(request, 'El crédito de ' + venta.deudor + ' fue modificada satisfactoriamente')
             return redirect('ventas_deudor')
@@ -1257,7 +1261,8 @@ def edit_credit(request, id_c=None):
     return redirect('login_user')
 
 
-############# Materiales ##############
+""" Materiales """
+
 
 @login_required
 def materiales(request):
@@ -1672,7 +1677,221 @@ def edit_gasto_material(request, ficha):
     return redirect('login_user')
 
 
-############# Moneda ##############
+class AuditoriaFinal:
+    def __init__(self, id, nombre, carnet, cellphone, phone, address, slug, countMaterial, countEntrega):
+        self.id = id
+        self.nombre = nombre
+        self.carnet = carnet
+        self.cellphone = cellphone
+        self.phone = phone
+        self.address = address
+        self.slug = slug
+        self.countMaterial = countMaterial
+        self.countEntrega = countEntrega
+
+
+@login_required
+def auditorias(request):
+    if request.user.is_authenticated:
+        auditorias = Auditoria.objects.all()
+        listAuditor = []
+        for auditoria in auditorias:
+            countMaterial = Auditoria_Material.objects.filter(auditoria_id=auditoria.id).count()
+            countEntrega = Auditoria_Entrega.objects.filter(auditoria_id=auditoria.id).count()
+            auditor = AuditoriaFinal(auditoria.id, auditoria.nombre, auditoria.carnet, auditoria.cellphone,
+                                     auditoria.phone, auditoria.address, auditoria.slug, countMaterial, countEntrega)
+            listAuditor.append(auditor)
+
+        context = {'auditorias': listAuditor}
+        return render(request, "punto_venta/auditoria/auditoria.html", context)
+    return redirect('login_user')
+
+
+@login_required
+def add_auditoria(request):
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            name_auditor = request.POST.get('name_auditor')
+            cellphone_auditor = request.POST.get('cellphone_auditor')
+            phone_auditor = request.POST.get('phone_auditor')
+            carnet_auditor = request.POST.get('carnet_auditor')
+            address_auditor = request.POST.get('address_auditor')
+
+            create_auditor = Auditoria.objects.create(nombre=name_auditor, cellphone=cellphone_auditor,
+                                                      phone=phone_auditor, carnet=carnet_auditor,
+                                                      address=address_auditor)
+            create_auditor.save()
+            messages.success(request, 'Los datos se agregaron satisfactoriamente')
+            return redirect(reverse('add_material_auditar', args=(create_auditor.slug,)))
+        return render(request, 'punto_venta/auditoria/auditoria.html', {})
+    return redirect('login_user')
+
+
+@login_required
+def add_material_auditar(request, name):
+    materials = Material.objects.all().order_by('id')
+    auditoria = Auditoria.objects.get(slug=name)
+    count_auditoria_material = Auditoria_Material.objects.filter(auditoria__slug=name).count()
+    context = {'materials': materials, 'ficha': name, 'ficha_nombre': auditoria,
+               'count_auditoria_material': count_auditoria_material}
+    return render(request, "almacen/material/add_material_auditor.html", context)
+
+
+@login_required
+def edit_material_auditar(request, name):
+    materials = Auditoria_Material.objects.filter(auditoria__slug=name).order_by('id')
+    auditoria = Auditoria.objects.get(slug=name)
+    context = {'materials': materials, 'ficha': name, 'ficha_nombre': auditoria}
+    return render(request, "almacen/material/edit_material_auditor.html", context)
+
+
+@login_required
+def add_count_material_auditar(request, name, material):
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            material_custom = Material.objects.get(slug=material)
+            nombre_material_custom = Auditoria.objects.get(slug=name)
+            count_material_auditoria = request.POST.get('count_material_auditoria')
+
+            if float(count_material_auditoria) != 0:
+                if Auditoria_Material.objects.filter(material__slug=material):
+                    Auditoria_Material.objects.filter(material__slug=material) \
+                        .update(cantidad_material=float(count_material_auditoria))
+                    if float(count_material_auditoria) < material_custom.cantidad:
+                        if Auditoria_Material.objects.get(material__slug=material):
+                            auditoria_material = Auditoria_Material.objects.get(material__slug=material)
+                            if float(count_material_auditoria) < auditoria_material.cantidad_material:
+                                resta = auditoria_material.cantidad_material - float(count_material_auditoria)
+                                sumMaterial = material_custom.cantidad + resta
+                                Material.objects.filter(slug=material).update(cantidad=sumMaterial)
+                            elif float(count_material_auditoria) > auditoria_material.cantidad_material:
+                                resta = float(count_material_auditoria) - auditoria_material.cantidad_material
+                                resMaterial = material_custom.cantidad - resta
+                                Material.objects.filter(slug=material).update(cantidad=resMaterial)
+                            else:
+                                return redirect(reverse('add_material_auditar', args=(name,)))
+                    else:
+                        messages.error(request, 'La cantidad proporcionada es mayor a la existente en el almacén')
+                        return redirect(reverse('add_material_auditar', args=(name,)))
+
+                    messages.success(request, 'Cantidad de material actualizado satisfactoriamente')
+                    return redirect(reverse('add_material_auditar', args=(name,)))
+                else:
+                    c = Auditoria_Material.objects.create(material=material_custom,
+                                                          cantidad_material=float(count_material_auditoria),
+                                                          auditoria=nombre_material_custom)
+                    c.save()
+                    count_material_real = material_custom.cantidad - float(count_material_auditoria)
+                    Material.objects.filter(slug=material).update(cantidad=count_material_real)
+                    messages.success(request, 'Cantidad de material agregado satisfactoriamente')
+                    return redirect(reverse('add_material_auditar', args=(name,)))
+            else:
+                messages.error(request, 'La cantidad proporcionada no puede ser 0')
+                return redirect(reverse('add_material_auditar', args=(name,)))
+
+        context = {}
+        return render(request, "almacen/material/add_material_auditor.html", context)
+    return redirect('login_user')
+
+
+@login_required
+def edit_count_material_auditar(request, name, material):
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            material_custom = Material.objects.get(slug=material)
+            nombre_material_custom = Auditoria.objects.get(slug=name)
+            count_material_auditoria = request.POST.get('count_material_auditoria')
+
+            if float(count_material_auditoria) != 0:
+                if float(count_material_auditoria) < material_custom.cantidad:
+                    if Auditoria_Material.objects.get(material__slug=material):
+                        auditoria_material = Auditoria_Material.objects.get(material__slug=material)
+                        Auditoria_Material.objects.filter(material__slug=material) \
+                            .update(cantidad_material=float(count_material_auditoria))
+                        if float(count_material_auditoria) < auditoria_material.cantidad_material:
+                            resta = auditoria_material.cantidad_material - float(count_material_auditoria)
+                            sumMaterial = material_custom.cantidad + resta
+                            Material.objects.filter(slug=material).update(cantidad=sumMaterial)
+                            return redirect(reverse('edit_material_auditar', args=(name,)))
+                        elif float(count_material_auditoria) > auditoria_material.cantidad_material:
+                            resta = float(count_material_auditoria) - auditoria_material.cantidad_material
+                            resMaterial = material_custom.cantidad - resta
+                            Material.objects.filter(slug=material).update(cantidad=resMaterial)
+                            return redirect(reverse('edit_material_auditar', args=(name,)))
+                        else:
+                            return redirect(reverse('edit_material_auditar', args=(name,)))
+                else:
+                    messages.error(request, 'La cantidad proporcionada es mayor a la existente en el almacén')
+                    return redirect(reverse('edit_material_auditar', args=(name,)))
+            else:
+                messages.error(request, 'La cantidad proporcionada no puede ser 0')
+                return redirect(reverse('edit_material_auditar', args=(name,)))
+
+        context = {}
+        return render(request, "almacen/material/edit_material_auditor.html", context)
+    return redirect('login_user')
+
+
+@login_required
+def entregar(request, name):
+    if request.user.is_authenticated:
+        auditorias_entrega = Auditoria_Entrega.objects.filter(auditoria__slug=name)
+        auditoria = Auditoria.objects.get(slug=name)
+        context = {'auditorias_entrega': auditorias_entrega, 'ficha': name, 'ficha_nombre': auditoria}
+        return render(request, "punto_venta/auditoria/entregar.html", context)
+    return redirect('login_user')
+
+
+@login_required
+def add_producto_entrega(request, name):
+    if request.user.is_authenticated:
+        auditoria = Auditoria.objects.get(slug=name)
+        if request.method == "POST":
+            name_producto_auditoria = request.POST.get('name_producto_auditoria')
+            count_product_auditoria = request.POST.get('count_product_auditoria')
+            fecha_entrega = request.POST.get('fecha_entrega')
+
+            create_entrega = Auditoria_Entrega.objects.create(nombre_producto=name_producto_auditoria,
+                                                              cantidad_producto=count_product_auditoria,
+                                                              fecha_entrega=fecha_entrega, auditoria_id=auditoria.id,
+                                                              fecha=datetime.now())
+            create_entrega.save()
+            messages.success(request, 'Los datos se agregaron satisfactoriamente')
+            return redirect(reverse('entregar', args=(name,)))
+        return render(request, 'punto_venta/auditoria/entregar.html', {})
+    return redirect('login_user')
+
+
+def edit_product(request, id_o=None):
+    if request.user.is_authenticated:
+        auditoria_entrega = Auditoria_Entrega.objects.get(id=id_o)
+        if request.method == 'POST':
+            name_producto_auditoria_edit = request.POST.get('name_producto_auditoria_edit')
+            count_product_auditoria_edit = request.POST.get('count_product_auditoria_edit')
+            fecha_entrega_edit = request.POST.get('fecha_entrega_edit')
+
+            Auditoria_Entrega.objects.filter(id=id_o).update(nombre_producto=name_producto_auditoria_edit)
+            Auditoria_Entrega.objects.filter(id=id_o).update(cantidad_producto=count_product_auditoria_edit)
+            Auditoria_Entrega.objects.filter(id=id_o).update(fecha_entrega=fecha_entrega_edit)
+
+            messages.success(request, 'Los datos del producto ' + auditoria_entrega.nombre_producto + 'fueron '
+                                                                                                      'modificados '
+                                                                                                      'satisfactoriamente')
+            return redirect(reverse('entregar', args=(auditoria_entrega.auditoria.slug,)))
+        context = {'auditoria_entrega': auditoria_entrega}
+        return render(request, 'punto_venta/auditoria/entregar.html', context)
+    return redirect('login_user')
+
+
+@login_required
+def delete_product(request, name, id_p):
+    if request.user.is_authenticated:
+        p = Auditoria_Entrega.objects.get(id=id_p)
+        p.delete()
+        messages.success(request, 'Producto eliminado satisfactoriamente')
+        return redirect(reverse('entregar', args=(name,)))
+    return redirect('login_user')
+
 
 @login_required
 def monedas(request):
