@@ -45,7 +45,11 @@
                     <tbody>
                     {% for mat in materials %}
                         <tr>
-                            <td><img src="{{ mat.material.imagen.url }}" class="img-fluid" alt="" width="50px" height="50px"></td>
+                            <td>
+                                {% if mat.material.imagen %}
+                                    <img src="{{ mat.material.imagen.url }}" class="img-fluid" alt="" width="50px" height="50px">
+                                {% endif %}
+                            </td>
                             <td>{{ mat.material.nombre_material }}</td>
                             <td>{{ mat.cantidad_material }}</td>
                             <td>{{ mat.material.costo }} USD</td>
