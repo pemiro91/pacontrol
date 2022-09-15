@@ -59,7 +59,11 @@
                     <tbody>
                     {% for producto in productos %}
                         <tr>
-                            <td><img src="{{ producto.imagen.url }}" class="img-fluid" alt="" width="50px" height="50px"></td>
+                            <td>
+                                {% if producto.imagen %}
+                                    <img src="{{ producto.imagen.url }}" class="img-fluid" alt="" width="50px" height="50px">
+                                {% endif %}
+                            </td>
                             <td>{{ producto.nombre_producto }}</td>
                             <td>{{ producto.cantidad_existente }}</td>
                             <td>{{ producto.costo }} USD</td>
