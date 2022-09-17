@@ -131,7 +131,7 @@ def insertar_usuario(request):
             return redirect("usuarios")
         else:
             messages.error(request, userForm.errors)
-            print(userForm.errors)
+            # print(userForm.errors)
             return redirect("insertar_usuario")
     else:
         userForm = UserForm()
@@ -498,7 +498,9 @@ def agregar_producto(request):
             messages.success(request, "El producto se agregó satisfactoriamente!")
             return redirect("productos")
         else:
-            print(productoForm.errors)
+            messages.error(request, productoForm.errors)
+            return redirect("insertar_producto")
+            # print(productoForm.errors)
     else:
         productoForm = ProductoForm()
     return render(request, 'punto_venta/producto/insertar_producto.html',
@@ -1281,7 +1283,9 @@ def agregar_material(request):
             messages.success(request, "El material se agregó satisfactoriamente!")
             return redirect("materiales")
         else:
-            print(materialForm.errors)
+            messages.error(request, materialForm.errors)
+            return redirect("insertar_material")
+            # print(materialForm.errors)
     else:
         materialForm = MaterialForm()
     return render(request, 'almacen/material/insertar_material.html',
