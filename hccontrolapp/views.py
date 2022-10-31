@@ -10,7 +10,8 @@ from hccontrolapp.models import Categoria_Producto, Producto, ProductoEstablecim
     Merma, Gastos, Venta, Venta_Diaria, Entrada, Ficha_Tecnica_Nombre, Ficha_Tecnica_Material, Ficha_Tecnica_Gastos, \
     Ficha_Tecnica, Establecimiento, Traslado, User, Material, Moneda, Merma_Material, Entrada_Material, Auditoria, \
     Auditoria_Material, Auditoria_Entrega
-from hccontrolapp.form import ProductoForm, TrasladoForm, TrasladoEstablecimientoForm, UserForm, MaterialForm
+from hccontrolapp.form import ProductoForm, TrasladoForm, TrasladoEstablecimientoForm, UserForm, MaterialForm,\
+    TrasladoProductoForm
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.db.models.query import QuerySet
@@ -492,19 +493,39 @@ def productos(request):
 def agregar_producto(request):
     if request.method == 'POST':
         productoForm = ProductoForm(request.POST or None, request.FILES or None)
-        if productoForm.is_valid():
+        trasladoForm = TrasladoProductoForm(request.POST)
+        if productoForm.is_valid() and trasladoForm.is_valid():
+            establecimiento_id = trasladoForm.cleaned_data['establecimiento'].id
+            precio_venta = trasladoForm.cleaned_data['precio_venta']
+
+            cantidad_existente = productoForm.cleaned_data['cantidad_existente']
+
             producto_form = productoForm.save(commit=False)
             producto_form.save()
+
+            Producto.objects.filter(id=producto_form.id).update(cantidad_existente=0)
+            newProducto = ProductoEstablecimiento(producto_id=producto_form.id,
+                                                  cantidad_existente=int(cantidad_existente),
+                                                  precio_venta=precio_venta,
+                                                  establecimiento_id=establecimiento_id,
+                                                  fecha=datetime.now())
+            newProducto.save()
+
+            move = Traslado(producto_id=producto_form.id, establecimiento_id=establecimiento_id,
+                            establecimiento_padre=None,
+                            cantidad_trasladar=int(cantidad_existente), user=request.user)
+            move.save()
             messages.success(request, "El producto se agregó satisfactoriamente!")
-            return redirect("productos")
+            return redirect('productos')
         else:
             messages.error(request, productoForm.errors)
             return redirect("insertar_producto")
             # print(productoForm.errors)
     else:
         productoForm = ProductoForm()
+        trasladoForm = TrasladoProductoForm()
     return render(request, 'punto_venta/producto/insertar_producto.html',
-                  {'productoForm': productoForm})
+                  {'productoForm': productoForm, 'trasladoForm': trasladoForm})
 
 
 @login_required

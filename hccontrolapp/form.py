@@ -64,6 +64,30 @@ class TrasladoForm(forms.Form):
                                                                    'required': True}))
 
 
+class TrasladoProductoForm(forms.Form):
+    class Meta:
+        model = Traslado
+        fields = ('producto', 'establecimiento', 'cantidad_trasladar', 'user', 'fecha')
+
+        exclude = ['fecha', 'producto', 'user', 'cantidad_trasladar']
+
+    establecimiento = forms.ModelChoiceField(queryset=Establecimiento.objects.all(),
+                                             widget=forms.Select(attrs={'class': 'select form-control',
+                                                                        'label': 'Seleccione el establecimiento',
+                                                                        'required': True}))
+
+    # cantidad_trasladar = forms.CharField(label='Cantidad a trasladar',
+    #                                      widget=forms.NumberInput(attrs={'class': 'form-control text',
+    #                                                                      'placeholder': 'Escriba la cantidad a '
+    #                                                                                     'trasladar',
+    #                                                                      'required': True}))
+
+    precio_venta = forms.CharField(label='Precio de venta (CUP)',
+                                   widget=forms.NumberInput(attrs={'step': 0.25, 'class': 'form-control text',
+                                                                   'placeholder': 'Escriba el precio de la venta',
+                                                                   'required': True}))
+
+
 class TrasladoEstablecimientoForm(forms.Form):
 
     def __init__(self, *args, **kwargs):

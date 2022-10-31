@@ -41,6 +41,31 @@
                             </div>
                         </div>
                     {% endfor %}
+
+                    {% for hidden in trasladoForm.hidden_fields %}
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="{{ hidden.name }}">{{ hidden.label }}</label>
+                            <div class="col-sm-9">
+                                <div class="form-group">
+                                    <div class="form-line">
+                                        {{ hidden }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% for field in trasladoForm %}
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="{{ field.name }}">{{ field.label }}</label>
+                            <div class="col-sm-9">
+                                <div class="form-group">
+                                    <div class="form-line">
+                                        {{ field }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                     <div class="form-group row">
                         <div class="col-sm-10">
                             <button type="submit" class="btn btn-primary" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); ">Agregar Producto</button>
