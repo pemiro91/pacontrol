@@ -1,13 +1,15 @@
 {% extends  'base_admin.html' %}
 {% load static %}
 {% block submenu-superior %}
-    <h1 class="h3 mb-0 text-gray-800">Resumen</h1>
+    {% if request.user.rol == False %}<h1 class="h3 mb-0 text-gray-800">Resumen</h1>
     <ol class="breadcrumb">
         <li class="breadcrumb-item active" aria-current="page">Resumen</li>
     </ol>
+    {% endif %}
 {% endblock %}
 {% block content %}
-        <div class="col-xl-4 col-md-6 mb-4">
+        {% if request.user.rol == False %}
+            <div class="col-xl-4 col-md-6 mb-4">
             <a href="#" data-toggle="modal" data-target="#table-venta-diaria">
                 <div class="card h-100">
                     <div class="card-body">
@@ -34,152 +36,158 @@
                 </div>
             </a>
         </div>
-        <div class="col-xl-4 col-md-6 mb-4">
-            <a href="#" data-toggle="modal" data-target="#table-gasto-diario">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-uppercase mb-1">Gasto diario</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {% if gastos_actual %}
-                                        {{ gastos_actual }} CUP
-                                    {% else %}
-                                        0.0 CUP
-                                    {% endif %}
+            <div class="col-xl-4 col-md-6 mb-4">
+                <a href="#" data-toggle="modal" data-target="#table-gasto-diario">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Gasto diario</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {% if gastos_actual %}
+                                            {{ gastos_actual }} CUP
+                                        {% else %}
+                                            0.0 CUP
+                                        {% endif %}
+                                    </div>
+    {#                                <div class="mt-2 mb-0 text-muted text-xs">#}
+    {#                                    <span class="text-success mr-2"><i class="fa fa-atlas"></i> 3.48%</span>#}
+    {#                                    <span>Since last month</span>#}
+    {#                                </div>#}
                                 </div>
-{#                                <div class="mt-2 mb-0 text-muted text-xs">#}
-{#                                    <span class="text-success mr-2"><i class="fa fa-atlas"></i> 3.48%</span>#}
-{#                                    <span>Since last month</span>#}
-{#                                </div>#}
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-sort-amount-down fa-2x text-primary"></i>
+                                <div class="col-auto">
+                                    <i class="fas fa-sort-amount-down fa-2x text-primary"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-xl-4 col-md-6 mb-4">
-            <a href="">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-uppercase mb-1">Ganancia diaria</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {% if ganancia_neta %}
-                                        {{ ganancia_neta }} CUP
-                                    {% else %}
-                                        0.0 CUP
-                                    {% endif %}
+                </a>
+            </div>
+            <div class="col-xl-4 col-md-6 mb-4">
+                <a href="">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Ganancia diaria</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {% if ganancia_neta %}
+                                            {{ ganancia_neta }} CUP
+                                        {% else %}
+                                            0.0 CUP
+                                        {% endif %}
+                                    </div>
+            {#                        <div class="mt-2 mb-0 text-muted text-xs">#}
+            {#                            <span class="text-success mr-2"><i class="fa fa-users"></i> 3.48%</span>#}
+            {#                            <span>Since last month</span>#}
+            {#                        </div>#}
                                 </div>
-        {#                        <div class="mt-2 mb-0 text-muted text-xs">#}
-        {#                            <span class="text-success mr-2"><i class="fa fa-users"></i> 3.48%</span>#}
-        {#                            <span>Since last month</span>#}
-        {#                        </div>#}
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-money-bill-wave fa-2x text-primary"></i>
+                                <div class="col-auto">
+                                    <i class="fas fa-money-bill-wave fa-2x text-primary"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-xl-4 col-md-6 mb-4">
-            <a href="">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-uppercase mb-1">Costo de inversión</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {% if costo_inversion %}
-                                        {{ costo_inversion }} CUP
-                                    {% else %}
-                                        0.0 CUP
-                                    {% endif %}
+                </a>
+            </div>
+            <div class="col-xl-4 col-md-6 mb-4">
+                <a href="">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Costo de inversión</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {% if costo_inversion %}
+                                            {{ costo_inversion }} CUP
+                                        {% else %}
+                                            0.0 CUP
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-money-bill fa-2x text-primary"></i>
+                                <div class="col-auto">
+                                    <i class="fas fa-money-bill fa-2x text-primary"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-xl-4 col-md-6 mb-4">
-            <a href="">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-uppercase mb-1">Posible venta</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {% if posible_venta %}
-                                        {{ posible_venta }} CUP
-                                    {% else %}
-                                        0.0 CUP
-                                    {% endif %}
+                </a>
+            </div>
+            <div class="col-xl-4 col-md-6 mb-4">
+                <a href="">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Posible venta</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {% if posible_venta %}
+                                            {{ posible_venta }} CUP
+                                        {% else %}
+                                            0.0 CUP
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-money-bill fa-2x text-primary"></i>
+                                <div class="col-auto">
+                                    <i class="fas fa-money-bill fa-2x text-primary"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-xl-4 col-md-6 mb-4">
-            <a href="">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-uppercase mb-1">Resumen de la semana pasada</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {% if lastWeek %}
-                                        {{ lastWeek }} CUP
-                                    {% else %}
-                                        0.0 CUP
-                                    {% endif %}
+                </a>
+            </div>
+            <div class="col-xl-4 col-md-6 mb-4">
+                <a href="">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Resumen de la semana pasada</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {% if lastWeek %}
+                                            {{ lastWeek }} CUP
+                                        {% else %}
+                                            0.0 CUP
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-table fa-2x text-primary"></i>
+                                <div class="col-auto">
+                                    <i class="fas fa-table fa-2x text-primary"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </a>
-        </div>
-        <div class="col-xl-4 col-md-6 mb-4">
-            <a href="">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-uppercase mb-1">Resumen de las ventas segun los días</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {% if summaryDay %}
-                                        {{ summaryDay }} CUP
-                                    {% else %}
-                                        0.0 CUP
-                                    {% endif %}
+                </a>
+            </div>
+            <div class="col-xl-4 col-md-6 mb-4">
+                <a href="">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Resumen de las ventas segun los días</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {% if summaryDay %}
+                                            {{ summaryDay }} CUP
+                                        {% else %}
+                                            0.0 CUP
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-table fa-2x text-primary"></i>
+                                <div class="col-auto">
+                                    <i class="fas fa-table fa-2x text-primary"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
+        {% else %}
+            <h1>{% if resquest.user.sexo == 'False' %}
+                Bienvenido {% else %} Bienvenida
+            {% endif %}  {{ request.user.username }}</h1>
+        {% endif %}
+
 
 
         <div class="modal fade bd-example-modal-lg" id="table-venta-diaria" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
@@ -259,10 +267,6 @@
                 </div>
             </div>
         </div>
-
-
-
-
 
 {% endblock %}
 {% block js %}
