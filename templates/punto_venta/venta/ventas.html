@@ -19,9 +19,13 @@
         <div class="card mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Tableros de Control</h6>
+                <button id="btn"  class="btn btn-primary mb-1 waves-black"
+                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " title="Ficha Técnica">
+                    <i class="fas fa-eye"></i> Venta Reducida
+                </button>
             </div>
-            <div class="table-responsive p-3">
-                <table class="table align-items-center table-flush table-hover" id="dataTableHover">
+            <div class="table-responsive p-3" id="tabla1">
+                <table class="table align-items-center table-flush table-hover tabla1" id="dataTableHover">
                     <thead class="thead-light">
                     <tr>
                         <th>Producto</th>
@@ -77,6 +81,31 @@
                     </tbody>
                 </table>
             </div>
+            <div class="table-responsive p-3" id="tabla2" style="display: none">
+                <table class="table align-items-center table-flush table-hover tabla2"  id="dataTableHover2">
+                    <thead class="thead-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                    </tr>
+                    </tfoot>
+                    <tbody>
+                    {% for sale in sales %}
+                        <tr>
+                            <td>{{ sale.producto.producto.nombre_producto }}</td>
+                            <td>{{ sale.cantidad }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     </div>
 
@@ -91,6 +120,32 @@
         $(document).ready(function () {
             $('#dataTable').DataTable(); // ID From dataTable
             $('#dataTableHover').DataTable(); // ID From dataTable with Hover
+            $('#dataTableHover2').DataTable(); // ID From dataTable with Hover
+        });
+
+
+    </script>
+
+    <script>
+        const btn = document.getElementById('btn');
+
+        btn.addEventListener('click', () => {
+          // 👇️ hide button
+
+          // 👇️ show div
+          const box = document.getElementById('tabla1');
+          {#box.style.display = 'none';#}
+
+          const box2 = document.getElementById('tabla2');
+
+
+          if (box.style.display === 'block'){
+              box.style.display = 'none';
+              box2.style.display = 'block';
+          }else {
+              box.style.display = 'block';
+              box2.style.display = 'none';
+          }
         });
     </script>
 {% endblock %}
