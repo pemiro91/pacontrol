@@ -44,66 +44,93 @@
                     </tr>
                     </tfoot>
                     <tbody>
-                    {% for producto_es in productos %}
-                        <tr>
-                            <td>
-                                {% if producto_es.producto.imagen %}
-                                    <img src="{{ producto_es.producto.imagen.url }}" class="img-fluid" alt="" width="50px" height="50px">
-                                {% else %}
-                                    <img src="{% static 'control_panel/img/hc_login.png' %}" class="img-fluid" alt="" width="50px" height="50px">
-                                {% endif %}
-                            </td>
-                            <td>{{ producto_es.producto.nombre_producto }}</td>
-                            <td>{{ producto_es.cantidad_existente }}</td>
-                            {% if request.user.rol == False %}
-                                <td>{% widthratio producto_es.producto.costo 1 tasa.tasa %} CUP</td>
-                            {% endif %}
-                            <td>{{ producto_es.precio_venta }} CUP</td>
-                            <td>{{ producto_es.establecimiento.nombre_establecimiento }}</td>
-                            <td width="20%">
+                    {% if error %}
+                        <div id="myModal" class="modal fade">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Tipo de moneda no encontrada</h5>
+{#                                        <button type="button" class="close" data-dismiss="modal">&times;</button>#}
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Debe definir un tipo de moneda para poder visualizar los precios de ventas</p>
+                                    </div>
+                                     <div class="modal-footer">
+{#                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>#}
+                                         <a href="{% url 'monedas' %}"
+                                           class="btn btn-secondary btn-ok"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           title="Modificar precio venta"
+                                           >
+                                            Definir
+                                        </a>
+                                      </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        {% for producto_es in productos %}
+                            <tr>
+                                <td>
+                                    {% if producto_es.producto.imagen %}
+                                        <img src="{{ producto_es.producto.imagen.url }}" class="img-fluid" alt="" width="50px" height="50px">
+                                    {% else %}
+                                        <img src="{% static 'control_panel/img/hc_login.png' %}" class="img-fluid" alt="" width="50px" height="50px">
+                                    {% endif %}
+                                </td>
+                                <td>{{ producto_es.producto.nombre_producto }}</td>
+                                <td>{{ producto_es.cantidad_existente }}</td>
                                 {% if request.user.rol == False %}
-                                    <a href="#" data-url="{% url 'edit_product_establecimiento' producto_es.id %}" data-toggle="modal"
-                                       class="btn btn-primary btn-sm waves-black"
-                                       data-id="{{ producto_es.id }}"
-                                       data-precio_venta="{{ producto_es.precio_venta }}"
-                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                       title="Modificar precio venta"
-                                       data-target="#confirm-modify">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                                    <td>{% widthratio producto_es.producto.costo 1 tasa.tasa %} CUP</td>
                                 {% endif %}
-                                <a href="#" data-url="{% url 'add_incrementar' producto_es.id %}" data-toggle="modal"
-                                   class="btn btn-primary btn-sm waves-black" data-id="{{ producto_es.id }}"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   title="Incrementar producto"
-                                   data-target="#confirm-incrementar">
-                                    <i class="fas fa-hand-point-up"></i>
-                                </a>
-                                {% if request.user.rol == False %}
-                                    <a href="#" data-url="{% url 'add_merma' producto_es.id %}" data-toggle="modal"
-                                       class="btn btn-primary btn-sm waves-black" data-id="{{ producto.id }}"
-                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                       title="Mermar producto"
-                                       data-target="#confirm-merma">
-                                        <i class="fas fa-hand-point-down"></i>
+                                <td>{{ producto_es.precio_venta }} CUP</td>
+                                <td>{{ producto_es.establecimiento.nombre_establecimiento }}</td>
+                                <td width="20%">
+                                    {% if request.user.rol == False %}
+                                        <a href="#" data-url="{% url 'edit_product_establecimiento' producto_es.id %}" data-toggle="modal"
+                                           class="btn btn-primary btn-sm waves-black"
+                                           data-id="{{ producto_es.id }}"
+                                           data-precio_venta="{{ producto_es.precio_venta }}"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           title="Modificar precio venta"
+                                           data-target="#confirm-modify">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="#" data-url="{% url 'add_incrementar' producto_es.id %}" data-toggle="modal"
+                                           class="btn btn-primary btn-sm waves-black" data-id="{{ producto_es.id }}"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           title="Incrementar producto"
+                                           data-target="#confirm-incrementar">
+                                            <i class="fas fa-hand-point-up"></i>
+                                        </a>
+                                    {% endif %}
+                                    {% if request.user.rol == False %}
+                                        <a href="#" data-url="{% url 'add_merma' producto_es.id %}" data-toggle="modal"
+                                           class="btn btn-primary btn-sm waves-black" data-id="{{ producto.id }}"
+                                           style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                           title="Mermar producto"
+                                           data-target="#confirm-merma">
+                                            <i class="fas fa-hand-point-down"></i>
+                                        </a>
+                                    {% endif %}
+                                    <a href="#" data-toggle="modal"
+                                       class="btn btn-primary btn-sm waves-pay" data-id_prod="{{ producto_es.id }}"
+                                       data-existencia="{{ producto_es.cantidad_existente }}"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700);"
+                                       title="Vender producto"
+                                       data-target="#confirm-buy">
+                                        <i class="fas fa-money-bill"></i>
                                     </a>
-                                {% endif %}
-                                <a href="#" data-toggle="modal"
-                                   class="btn btn-primary btn-sm waves-pay" data-id="{{ producto_es.id }}"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700);"
-                                   title="Vender producto"
-                                   data-target="#confirm-buy">
-                                    <i class="fas fa-money-bill"></i>
-                                </a>
-                                <a href="{% url 'traslado' producto_es.establecimiento.slug producto_es.producto.slug %}"
-                                   title="Trasladar Producto"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   class="btn btn-primary btn-sm">
-                                    <i class="fas fa-truck"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
+                                    <a href="{% url 'traslado' producto_es.establecimiento.slug producto_es.producto.slug %}"
+                                       title="Trasladar Producto"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       class="btn btn-primary btn-sm">
+                                        <i class="fas fa-truck"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -188,6 +215,18 @@
                             </select>
                           </div>
 
+                            <div id="id_prod" hidden>
+                                <label for="id_var" class="col-form-label"></label>
+                                <input type="number" name="id_prod"
+                                       class="form-control required" id="id_var">
+                            </div>
+                            <div id="existencia" hidden>
+                                <label for="existencia_var" class="col-form-label"></label>
+                                <input type="number" name="existencia"
+                                       class="form-control required" id="existencia_var"  >
+                            </div>
+
+
                           <div id="count_product" class="form-group has-error">
                             <label for="count_product_var" class="col-form-label">Cantidad de producto:</label>
                             <input type="number" name="count_product_var"
@@ -202,7 +241,13 @@
                             </div>
                           <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
-                            <button type="submit" class="btn btn-secondary btn-ok" style="background: linear-gradient(to bottom right, #fc4212, #ff5700); " >Vender</button>
+                            <input type="button" class="btn btn-primary btn-ok" id="pagar1" name="pagar1"
+                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                   value="Vender" onclick="submitFunction(1)"/>
+                            <input type="button" style="display:none; background:
+                            linear-gradient(to bottom right, #fc4212, #ff5700);"
+                                   class="btn btn-primary btn-ok" id="pagar2" name="pagar2"
+                                   value="Vender" onclick="submitFunction(2)"/>
                           </div>
                         </form>
                     </div>
@@ -243,6 +288,18 @@
     <script src="{% static 'control_panel/vendor/datatables/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'control_panel/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
 
+    <script>
+        $(document).ready(function(){
+            $("#myModal").modal('show');
+        });
+
+        $('#myModal').on('hide.bs.modal', function(e){
+             {#e.preventDefault();#}
+             {#e.stopImmediatePropagation();#}
+             return false;
+        });
+    </script>
+
     <!-- Page level custom scripts -->
     <script>
         $(document).ready(function () {
@@ -282,25 +339,73 @@
         $(document).ready(function(){
             $('#typePaysSelector').on('change', function() {
               if ( this.value === 'credit'){
-                $("#count_product").show();
                 $("#deudor_id").show();
+                $("#pagar2").show();
+                $("#pagar1").hide();
               }
               else {
-                $("#count_product").show();
                 $("#deudor_id").hide();
+                $("#pagar1").show();
+                $("#pagar2").hide();
               }
             });
         });
     </script>
 
-    <script type="text/javascript">
+    <script>
         $(document).on('click','.waves-pay',function(){
-            const element = document.getElementsByName("count_product_var");
-            const id = $(this).data('id');
-            console.log(id)
-            console.log(element)
-            $("#data_buy_form").attr("action", "buy/" + id);
+            document.forms["data_buy_form"]['id_prod'].value = $(this).data('id_prod');
+            document.forms["data_buy_form"]['existencia'].value = $(this).data('existencia');
         });
     </script>
+    <script type="text/javascript">
+        function submitFunction(i) {
+           if (i===1){
+               const amountClient = $('#count_product_var');
+               const existencia = $('#existencia_var');
+               const id = $('#id_var');
+               if (!amountClient.val()){
+                   $("#shieldRequired").show();
+                   i.preventDefault();
+               }else {
+                   $("#shieldRequired").hide();
+                   if(amountClient.val() > existencia.val()) {
+                       $("#shieldCountProduct").show();
+                       i.preventDefault();
+                   } else {
+                       $("#shieldCountProduct").hide();
+                       {#alert(id.val())#}
+                       $("#data_buy_form").attr("action", "buy/" + id.val());
+                   }
+              }
+           }
+           if (i===2){
+               const amountClient = $('#count_product_var');
+               const existencia = $('#existencia_var');
+               const deudorName = $('#deudor_name');
+               const id = $('#id_var');
+               if (!amountClient.val()){
+                   $("#shieldRequired").show();
+                   i.preventDefault();
+               }if (!deudorName.val()){
+                   $("#shieldTransRequired").show();
+                   i.preventDefault();
+               }else {
+                   $("#shieldRequired").hide();
+                   $("#shieldTransRequired").hide();
+                   if(existencia.val() < amountClient.val()) {
+                       $("#shieldCountProduct").show();
+                       i.preventDefault();
+                   } else {
+                       $("#shieldCountProduct").hide();
+                       {#alert(id.val())#}
+                       $("#data_buy_form").attr("action", "buy/" + id.val());
+                   }
+              }
+           }
+           document.forms["data_buy_form"].submit()
+       }
+    </script>
+
 
 {% endblock %}
