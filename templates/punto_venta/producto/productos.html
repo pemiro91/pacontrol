@@ -95,11 +95,13 @@
                                    data-target="#confirm-merma">
                                     <i class="fas fa-hand-point-down"></i>
                                 </a>
-                                <a href="{% url 'traslado_general' producto.slug %}" title="Traslado Producto"
-                                   style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
-                                   class="btn btn-primary btn-sm">
-                                    <i class="fas fa-truck"></i>
-                                </a>
+                                {% if producto.cantidad_existente != 0 %}
+                                    <a href="{% url 'traslado_general' producto.slug %}" title="Traslado Producto"
+                                       style="background: linear-gradient(to bottom right, #fc4212, #ff5700); "
+                                       class="btn btn-primary btn-sm">
+                                        <i class="fas fa-truck"></i>
+                                    </a>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}

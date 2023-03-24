@@ -10,7 +10,7 @@ from hccontrolapp.models import Categoria_Producto, Producto, ProductoEstablecim
     Merma, Gastos, Venta, Venta_Diaria, Entrada, Ficha_Tecnica_Nombre, Ficha_Tecnica_Material, Ficha_Tecnica_Gastos, \
     Ficha_Tecnica, Establecimiento, Traslado, User, Material, Moneda, Merma_Material, Entrada_Material, Auditoria, \
     Auditoria_Material, Auditoria_Entrega
-from hccontrolapp.form import ProductoForm, TrasladoForm, TrasladoEstablecimientoForm, UserForm, MaterialForm,\
+from hccontrolapp.form import ProductoForm, TrasladoForm, TrasladoEstablecimientoForm, UserForm, MaterialForm, \
     TrasladoProductoForm
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
@@ -474,11 +474,20 @@ def delete_traslado(request, id_t):
 ############# Productos ##############
 @login_required
 def productos_establecimientos(request, store):
-    establecimiento = Establecimiento.objects.get(slug=store)
-    products = ProductoEstablecimiento.objects.filter(establecimiento__slug=store).order_by('id')
-    tasa = Moneda.objects.all()[0]
-    context = {'productos': products, 'store': store, 'tasa': tasa, 'establecimiento': establecimiento}
-    return render(request, "punto_venta/producto/productos_establecimientos.html", context)
+    if request.user.is_authenticated:
+        establecimiento = Establecimiento.objects.get(slug=store)
+        products = ProductoEstablecimiento.objects.filter(establecimiento__slug=store).order_by('id')
+        if Moneda.objects.count() == 0:
+            error = True
+            context = {'productos': products, 'store': store, 'establecimiento': establecimiento,
+                       'error': error}
+            return render(request, "punto_venta/producto/productos_establecimientos.html", context)
+        else:
+            error = False
+            tasa = Moneda.objects.all()[0]
+            context = {'productos': products, 'store': store, 'tasa': tasa, 'establecimiento': establecimiento, 'error': error}
+            return render(request, "punto_venta/producto/productos_establecimientos.html", context)
+    return redirect('login_user')
 
 
 @login_required
